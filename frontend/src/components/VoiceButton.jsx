@@ -2,23 +2,23 @@ import React, { useState } from 'react';
 import { Mic, Loader2, CheckCircle, AlertCircle, Square } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
-const VoiceButton = ({ 
-  onComplete, 
-  idleText, 
+const VoiceButton = ({
+  onComplete,
+  idleText,
   idleSubtext = '',
   completedText,
   completedSubtext = '',
   mockResult = "मुझे बुखार है और सिर में दर्द हो रहा है।",
   simulateError = false,
-  
+
   // Phase 4 Controlled Props
   controlledState, // if provided, overrides internal state
   onClickOverride, // if provided, called instead of mock timer
   interimTextOverride // optionally show transcript in real time
 }) => {
-  const [internalState, setInternalState] = useState('idle'); 
+  const [internalState, setInternalState] = useState('idle');
   const { t } = useLanguage();
-  
+
   const state = controlledState || internalState;
 
   const handlePress = () => {
@@ -29,12 +29,12 @@ const VoiceButton = ({
 
     // Mock processing behavior if not controlled
     if (state !== 'idle' && state !== 'error') return;
-    
+
     setInternalState('listening');
-    
+
     setTimeout(() => {
       setInternalState('processing');
-      
+
       setTimeout(() => {
         if (simulateError) {
           setInternalState('error');
@@ -97,7 +97,7 @@ const VoiceButton = ({
         aria-label={currentState.text}
       >
         {currentState.icon}
-        
+
         {state === 'listening' && (
           <>
             <span className="absolute w-full h-full rounded-full bg-red-400 opacity-50 animate-ping" style={{ animationDuration: '1.5s' }}></span>
@@ -105,7 +105,7 @@ const VoiceButton = ({
           </>
         )}
       </button>
-      
+
       <div className="mt-6 text-center px-4 w-full">
         <h2 className="text-2xl font-bold text-neutral-text mb-2">{currentState.text}</h2>
         <p className={`text-lg text-neutral-muted ${state === 'listening' && interimTextOverride ? 'italic text-primary' : ''}`}>

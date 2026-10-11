@@ -9,11 +9,11 @@ const Welcome = () => {
   const navigate = useNavigate();
   const { setLanguage } = useLanguage();
   const { patient } = usePatient();
-  
+
   const [isListening, setIsListening] = useState(false);
   const [showLanguagePicker, setShowLanguagePicker] = useState(false);
   const [detectionError, setDetectionError] = useState(false);
-  
+
   const recognitionRef = useRef(null);
 
   useEffect(() => {
@@ -42,17 +42,17 @@ const Welcome = () => {
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
-    
+
     recognition.continuous = false;
     recognition.interimResults = false;
-    
+
     return recognition;
   };
 
   const handleVoiceInteraction = () => {
     setDetectionError(false);
     setShowLanguagePicker(false);
-    
+
     const recognition = initSpeechRecognition();
     if (!recognition) return;
 
@@ -63,14 +63,14 @@ const Welcome = () => {
     recognition.onresult = (event) => {
       const transcript = event.results[0][0].transcript;
       const detected = detectLanguageFromTranscript(transcript);
-      
+
       if (detected && detected.confidence > 0.5 && detected.language !== 'unknown') {
         // Success
         setLanguage(detected.language);
         if (patient) {
-           navigate('/patient/home');
+          navigate('/patient/home');
         } else {
-           navigate('/patient/register');
+          navigate('/patient/register');
         }
       } else {
         // Low confidence
@@ -114,9 +114,9 @@ const Welcome = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-white items-center justify-center relative px-6 py-12">
-      
+
       {/* Top right language selector fallback icon */}
-      <button 
+      <button
         onClick={() => setShowLanguagePicker(!showLanguagePicker)}
         className="absolute top-6 right-6 p-3 bg-gray-50 rounded-full text-gray-500 hover:bg-gray-100 shadow-sm transition-all"
         aria-label="Select Language"
@@ -134,34 +134,33 @@ const Welcome = () => {
 
       {/* Feedback State (Language neutral icons if possible) */}
       {detectionError && !showLanguagePicker && (
-         <div className="mb-6 flex flex-col items-center text-orange-500 animate-pulse">
-           <AlertCircle className="w-10 h-10 mb-2" />
-           <span className="text-sm font-semibold">?</span>
-         </div>
+        <div className="mb-6 flex flex-col items-center text-orange-500 animate-pulse">
+          <AlertCircle className="w-10 h-10 mb-2" />
+          <span className="text-sm font-semibold">?</span>
+        </div>
       )}
 
       {/* Primary Voice Interaction */}
       <div className="flex flex-col items-center relative z-10">
-        
+
         {/* Visual Arrow Pointing to Mic */}
         <div className="mb-4 animate-bounce text-gray-300">
-           <ArrowUp className="w-10 h-10" />
+          <ArrowUp className="w-10 h-10" />
         </div>
 
         <button
           onClick={handleVoiceInteraction}
-          className={`relative flex items-center justify-center w-40 h-40 rounded-full shadow-2xl transition-all duration-300 ${
-            isListening 
-              ? 'bg-red-500 scale-110 shadow-red-500/50' 
+          className={`relative flex items-center justify-center w-40 h-40 rounded-full shadow-2xl transition-all duration-300 ${isListening
+              ? 'bg-red-500 scale-110 shadow-red-500/50'
               : 'bg-primary hover:bg-primary-dark hover:scale-105 shadow-primary/40'
-          }`}
+            }`}
           aria-label="Microphone"
         >
           {/* Ripple Effect while listening */}
           {isListening && (
             <div className="absolute inset-0 rounded-full bg-red-400 animate-ping opacity-75"></div>
           )}
-          
+
           <Mic className={`w-20 h-20 relative z-10 ${isListening ? 'text-white' : 'text-white'}`} />
         </button>
       </div>

@@ -288,7 +288,7 @@ const Register = () => {
   const progressPercent = (confirmedCount / FIELD_ORDER.length) * 100;
 
   return (
-    <div className="flex flex-col h-full max-w-lg mx-auto pb-4">
+    <div className="flex flex-col h-full w-full max-w-xl mx-auto pb-6">
       {/* Header */}
       {step !== 'COMPLETED' && (
         <div className="flex items-center gap-3 mb-6 px-4 pt-4">
@@ -297,12 +297,15 @@ const Register = () => {
               stopSpeaking();
               navigate(-1);
             }}
-            className="p-2 bg-white rounded-full shadow-sm text-neutral-text hover:bg-gray-50 active:scale-95"
+            className="p-2.5 bg-white rounded-2xl shadow-sm text-slate-700 hover:bg-slate-50 border border-slate-100 active:scale-95 transition-all"
             aria-label={t('back')}
           >
-            <ArrowLeft className="w-6 h-6" />
+            <ArrowLeft className="w-5 h-5" />
           </button>
-          <h2 className="text-2xl font-bold text-neutral-text">{t('patient_info')}</h2>
+          <div>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-slate-800 tracking-tight">{t('patient_info')}</h2>
+            <p className="text-sm text-slate-400 mt-0.5">{t('register_subtitle')}</p>
+          </div>
         </div>
       )}
 

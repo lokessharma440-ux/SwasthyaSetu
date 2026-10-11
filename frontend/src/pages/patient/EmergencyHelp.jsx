@@ -17,16 +17,19 @@ const EmergencyHelp = () => {
   };
 
   return (
-    <div className="flex flex-col h-full max-w-lg mx-auto pb-4">
+    <div className="flex flex-col h-full w-full max-w-2xl mx-auto pb-6">
       <div className="flex items-center gap-3 mb-6">
         <button 
           onClick={() => navigate(-1)}
-          className="p-2 bg-white rounded-full shadow-sm text-neutral-text hover:bg-gray-50"
+          className="p-2.5 bg-white rounded-2xl shadow-sm text-slate-700 hover:bg-slate-50 border border-slate-100 active:scale-95 transition-all"
           aria-label={t('back')}
         >
-          <ArrowLeft className="w-6 h-6" />
+          <ArrowLeft className="w-5 h-5" />
         </button>
-        <h2 className="text-2xl font-bold text-neutral-text">{t('emergency_title')}</h2>
+        <div>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-slate-800 tracking-tight">{t('emergency_title')}</h2>
+          <p className="text-sm text-slate-400 mt-0.5">{t('emergency_subtitle')}</p>
+        </div>
       </div>
 
       <div className="bg-red-50 rounded-3xl p-6 border border-red-200 text-center mb-6">

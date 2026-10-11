@@ -91,54 +91,61 @@ const MedicalDocuments = () => {
   }
 
   return (
-    <div className="flex flex-col h-full max-w-lg mx-auto pb-4 relative">
+    <div className="flex flex-col h-full w-full pb-4 relative">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <button 
             onClick={() => navigate('/patient/history')}
-            className="p-2 bg-white rounded-full shadow-sm text-neutral-text hover:bg-gray-50"
+            className="p-2.5 bg-white rounded-2xl shadow-sm text-slate-700 hover:bg-slate-50 border border-slate-100 active:scale-95 transition-all"
+            aria-label={t('back')}
           >
-            <ArrowLeft className="w-6 h-6" />
+            <ArrowLeft className="w-5 h-5" />
           </button>
-          <h2 className="text-2xl font-bold text-neutral-text">{t('documents')}</h2>
+          <div>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-slate-800 tracking-tight">{t('documents')}</h2>
+            <p className="text-sm text-slate-400 mt-0.5">{t('documents_subtitle')}</p>
+          </div>
         </div>
         <button 
            onClick={() => setShowUploadModal(true)}
-           className="bg-blue-100 text-blue-700 p-2 rounded-full hover:bg-blue-200"
+           className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 p-3 rounded-2xl flex items-center gap-2 font-bold text-sm border border-emerald-200/60 active:scale-95 transition-all shadow-xs"
         >
-          <Plus className="w-6 h-6" />
+          <Plus className="w-5 h-5" />
+          <span className="hidden sm:inline">{t('add_document')}</span>
         </button>
       </div>
 
-      <div className="space-y-4">
+      <div>
         {(!patient || patient.isLocal) ? (
-          <div className="bg-orange-50 p-6 rounded-2xl text-center border border-orange-100">
+          <div className="bg-orange-50 p-6 rounded-3xl text-center border border-orange-100 max-w-md mx-auto">
             <p className="text-orange-800 font-medium">{t('please_complete_profile')}</p>
           </div>
         ) : documents.length === 0 ? (
-          <div className="bg-white p-8 rounded-3xl border border-gray-100 text-center shadow-sm flex flex-col items-center justify-center h-64">
-             <div className="bg-gray-50 p-4 rounded-full mb-4">
-                <FileText className="w-10 h-10 text-gray-300" />
+          <div className="bg-white p-10 rounded-3xl border border-slate-100 text-center shadow-sm flex flex-col items-center justify-center h-72 max-w-lg mx-auto">
+             <div className="bg-slate-50 p-4 rounded-2xl mb-4 text-slate-300">
+                <FileText className="w-12 h-12" />
              </div>
-             <p className="text-neutral-muted mb-4">{t('no_documents')}</p>
+             <p className="text-slate-500 font-medium mb-4">{t('no_documents')}</p>
              <Button onClick={() => setShowUploadModal(true)} variant="outline" className="flex items-center gap-2">
                <Upload className="w-4 h-4" /> {t('upload_document')}
              </Button>
           </div>
         ) : (
-          documents.map(doc => (
-            <div key={doc._id} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
-              <div className="bg-blue-50 p-3 rounded-xl">
-                {getDocIcon(doc.documentType)}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {documents.map(doc => (
+              <div key={doc._id} className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 flex items-center gap-4 hover:shadow-md transition-all duration-200">
+                <div className="bg-emerald-50 p-3.5 rounded-2xl text-emerald-600 shrink-0">
+                  {getDocIcon(doc.documentType)}
+                </div>
+                <div className="flex-1 overflow-hidden">
+                  <h3 className="font-bold text-slate-800 truncate text-base">{doc.fileName}</h3>
+                  <p className="text-xs text-slate-400 mt-1 font-medium">
+                    {new Date(doc.uploadDate).toLocaleDateString()} • {t(doc.documentType) || doc.documentType}
+                  </p>
+                </div>
               </div>
-              <div className="flex-1 overflow-hidden">
-                <h3 className="font-bold text-neutral-text truncate">{doc.fileName}</h3>
-                <p className="text-xs text-neutral-muted mt-1">
-                  {new Date(doc.uploadDate).toLocaleDateString()} • {t(doc.documentType) || doc.documentType}
-                </p>
-              </div>
-            </div>
-          ))
+            ))}
+          </div>
         )}
       </div>
 

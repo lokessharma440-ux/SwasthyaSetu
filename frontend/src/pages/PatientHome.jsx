@@ -66,14 +66,14 @@ const PatientHome = () => {
   if (!isLoaded) return null;
 
   const firstName = patient?.name ? patient.name.split(' ')[0] : '';
-  
+
   let followUpMessage = null;
   if (followUp && followUp.date) {
     const today = new Date();
     const fDate = new Date(followUp.date);
     const diffTime = fDate.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) {
       followUpMessage = `🔔 ${t('follow_up_today')}`;
     } else if (diffDays > 0 && diffDays <= 3) {
@@ -82,124 +82,147 @@ const PatientHome = () => {
   }
 
   return (
-    <div className="flex flex-col h-full max-w-lg mx-auto">
-      
-      <div className="mb-6 mt-2 flex justify-between items-start">
-        <div>
-          <h2 className="text-3xl font-bold text-neutral-text">
-            {firstName ? t('greeting', { name: firstName }) : t('greeting_simple')}
-          </h2>
-          <p className="text-xl text-neutral-muted mt-2">{t('how_are_you')}</p>
-        </div>
-        <button 
-          onClick={() => navigate('/patient/settings')}
-          className="p-2 bg-white rounded-full shadow-sm text-neutral-text hover:bg-gray-50 active:scale-95"
-          aria-label="Settings"
-        >
-          <Settings className="w-6 h-6" />
-        </button>
-      </div>
-
-      {!patient && (
-        <div className="bg-orange-50 rounded-2xl p-4 mb-6 border border-orange-100 flex items-center justify-between shadow-sm">
-          <div>
-            <h3 className="font-bold text-orange-800">{t('complete_profile')}</h3>
-            <p className="text-sm text-orange-700 mt-1">{t('speak_profile')}</p>
-          </div>
-          <Button size="sm" onClick={() => navigate('/patient/register')} className="bg-orange-500 hover:bg-orange-600 focus:ring-orange-500 text-white rounded-xl">
-            {t('start')}
-          </Button>
-        </div>
-      )}
-
-      {/* Follow-up Reminder */}
-      {followUp && followUp.date && (
-        <div 
-          onClick={() => navigate('/patient/history')}
-          className="bg-yellow-50 rounded-3xl p-5 mb-6 border border-yellow-200 cursor-pointer shadow-sm animate-in slide-in-from-top-2 flex items-center gap-4"
-        >
-          <div className="bg-yellow-200 p-3 rounded-full text-yellow-800">
-            <Bell className="w-8 h-8" />
-          </div>
-          <div>
-            <h3 className="font-bold text-lg text-yellow-900">
-               {followUpMessage ? followUpMessage : `🔔 ${t('next_follow_up')}`}
-            </h3>
-            <p className="text-yellow-800 font-medium">
-              {t('next_checkup')}: {new Date(followUp.date).toLocaleDateString()}
-            </p>
-            {followUp.note && <p className="text-yellow-700 text-sm mt-1">{followUp.note}</p>}
-          </div>
-        </div>
-      )}
-
-      {/* Primary Action */}
-      <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center mb-6">
-        <p className="text-neutral-text font-semibold text-lg mb-4">{t('speak_problem')}</p>
-        <button 
-          onClick={() => navigate('/patient/complaint')}
-          className="flex items-center justify-center w-32 h-32 md:w-36 md:h-36 rounded-full shadow-lg transition-all duration-300 bg-primary hover:bg-primary-dark active:scale-95"
-          aria-label={t('tell_problem')}
-        >
-          <Mic className="w-14 h-14 text-white" />
-        </button>
-        <h2 className="text-2xl font-bold text-neutral-text mt-6">{t('tell_problem')}</h2>
-      </div>
-
-      {/* Active Complaint Status */}
-      {complaint && (
-        <div className="mb-6 bg-white rounded-2xl p-5 shadow-sm border border-gray-100 animate-in slide-in-from-bottom-4 fade-in duration-300">
-          <div className="flex justify-between items-start mb-3 border-b border-gray-100 pb-3">
-            <h3 className="font-bold text-lg flex items-center gap-2">
-              <Activity className="w-5 h-5 text-blue-500" />
-              {t('problem_ready')}
-            </h3>
-          </div>
+    <div className="w-full">
+      <div className="lg:grid lg:grid-cols-12 lg:gap-8 lg:items-start">
+        
+        {/* Left Column (Desktop: 5 cols / Mobile: stacked) */}
+        <div className="lg:col-span-5 flex flex-col space-y-6">
           
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-neutral-muted">{t('status')}:</span>
-              <StatusBadge 
-                status={
-                  complaint.status === 'RESPONDED' ? 'responded' : 
-                  complaint.status === 'UNDER_REVIEW' ? 'viewed' : 
-                  'saved'
-                } 
-                labelOverride={
-                  complaint.status === 'READY_FOR_DOCTOR' ? t('ready_for_doctor') : 
-                  complaint.status === 'UNDER_REVIEW' ? t('under_review') : 
-                  complaint.status === 'RESPONDED' ? t('responded') : 
-                  complaint.status
-                } 
-              />
+          {/* Greeting Card */}
+          <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex items-center justify-between">
+            <div className="flex-1 pr-3">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight">
+                {firstName ? t('greeting', { name: firstName }) : t('greeting_simple')}
+              </h2>
+              <p className="text-base text-slate-500 mt-1 font-medium">{t('how_are_you')}</p>
             </div>
-            <div>
-              <span className="text-neutral-muted text-sm">{t('problem')}:</span>
-              <p className="font-semibold text-neutral-text">{complaint.problem}</p>
-            </div>
+            <button
+              onClick={() => navigate('/patient/settings')}
+              className="p-3 bg-slate-50 hover:bg-slate-100 rounded-2xl text-slate-600 border border-slate-200/60 active:scale-95 transition-all shadow-sm"
+              aria-label="Settings"
+              title="Settings"
+            >
+              <Settings className="w-5 h-5" />
+            </button>
           </div>
+
+          {/* Hero Voice Complaint Action Card */}
+          <div className="bg-gradient-to-b from-white via-white to-emerald-50/40 rounded-3xl p-7 shadow-sm border border-emerald-100/70 flex flex-col items-center justify-center text-center relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-100/40 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-teal-100/40 rounded-full blur-2xl -ml-10 -mb-10 pointer-events-none"></div>
+            
+            <p className="text-slate-600 font-semibold text-base mb-6 relative z-10">{t('speak_problem')}</p>
+            
+            <div className="relative mb-6">
+              {/* Subtle pulse ripple */}
+              <div className="absolute inset-0 rounded-full bg-emerald-400/20 animate-ping opacity-40"></div>
+              <button 
+                onClick={() => navigate('/patient/complaint')}
+                className="relative z-10 flex items-center justify-center w-36 h-36 rounded-full shadow-xl shadow-emerald-600/20 transition-all duration-300 bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 active:scale-95 ring-8 ring-emerald-500/15 hover:ring-emerald-500/25 cursor-pointer"
+                aria-label={t('tell_problem')}
+              >
+                <Mic className="w-16 h-16 text-white drop-shadow-sm" />
+              </button>
+            </div>
+
+            <h2 className="text-2xl font-bold text-slate-800 tracking-tight">{t('tell_problem')}</h2>
+          </div>
+
+          {/* Active Complaint Status */}
+          {complaint && (
+            <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 animate-in slide-in-from-bottom-4 fade-in duration-300">
+              <div className="flex justify-between items-center mb-3 border-b border-slate-100 pb-3">
+                <h3 className="font-bold text-base text-slate-800 flex items-center gap-2">
+                  <Activity className="w-5 h-5 text-emerald-600" />
+                  {t('problem_ready')}
+                </h3>
+                <StatusBadge
+                  status={
+                    complaint.status === 'RESPONDED' ? 'responded' :
+                    complaint.status === 'UNDER_REVIEW' ? 'viewed' :
+                    'saved'
+                  }
+                  labelOverride={
+                    complaint.status === 'READY_FOR_DOCTOR' ? t('ready_for_doctor') :
+                    complaint.status === 'UNDER_REVIEW' ? t('under_review') :
+                    complaint.status === 'RESPONDED' ? t('responded') :
+                    complaint.status
+                  }
+                />
+              </div>
+
+              <div className="bg-slate-50/70 p-3.5 rounded-2xl border border-slate-100">
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">{t('problem')}</span>
+                <p className="font-semibold text-slate-700 text-base mt-0.5">{complaint.problem}</p>
+              </div>
+            </div>
+          )}
+
         </div>
-      )}
 
-      {/* Quick Access Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-6">
-        {cards.map((card, idx) => (
-          <div 
-            key={idx}
-            onClick={() => navigate(card.path)}
-            className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 cursor-pointer hover:shadow-md transition-shadow active:scale-[0.98]"
-          >
-            <div className={`p-4 rounded-full ${card.color}`}>
-              {card.icon}
+        {/* Right Column (Desktop: 7 cols / Mobile: stacked) */}
+        <div className="lg:col-span-7 flex flex-col space-y-6 mt-6 lg:mt-0">
+          
+          {!patient && (
+            <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-3xl p-5 border border-orange-200/70 flex items-center justify-between shadow-sm">
+              <div>
+                <h3 className="font-bold text-orange-900 text-lg">{t('complete_profile')}</h3>
+                <p className="text-sm text-orange-700/90 mt-0.5">{t('speak_profile')}</p>
+              </div>
+              <Button size="sm" onClick={() => navigate('/patient/register')} className="bg-orange-500 hover:bg-orange-600 focus:ring-orange-500 text-white rounded-xl shadow-sm">
+                {t('start')}
+              </Button>
             </div>
-            <div>
-              <h3 className="text-lg font-bold text-neutral-text">{card.title}</h3>
-              <p className="text-neutral-muted text-sm mt-1">{card.desc}</p>
+          )}
+
+          {/* Follow-up Reminder */}
+          {followUp && followUp.date && (
+            <div
+              onClick={() => navigate('/patient/history')}
+              className="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-3xl p-5 border border-amber-200/80 cursor-pointer shadow-sm hover:shadow transition-all active:scale-[0.99] flex items-center gap-4"
+            >
+              <div className="bg-amber-100 p-3.5 rounded-2xl text-amber-800 shadow-sm border border-amber-200/60 shrink-0">
+                <Bell className="w-6 h-6 animate-bounce" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-bold text-base text-amber-950">
+                  {followUpMessage ? followUpMessage : `🔔 ${t('next_follow_up')}`}
+                </h3>
+                <p className="text-amber-800 text-sm font-semibold mt-0.5">
+                  {t('next_checkup')}: {new Date(followUp.date).toLocaleDateString()}
+                </p>
+                {followUp.note && <p className="text-amber-700/90 text-xs mt-1 line-clamp-1">{followUp.note}</p>}
+              </div>
             </div>
+          )}
+
+          {/* Quick Access Grid Header */}
+          <div className="flex items-center justify-between pt-1">
+            <h3 className="text-lg font-extrabold text-slate-800 tracking-tight">{t('services')}</h3>
           </div>
-        ))}
-      </div>
 
+          {/* Quick Access Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-2">
+            {cards.map((card, idx) => (
+              <div
+                key={idx}
+                onClick={() => navigate(card.path)}
+                className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 flex items-center gap-4 cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 active:scale-[0.98]"
+              >
+                <div className={`p-4 rounded-2xl ${card.color || 'bg-slate-100'} shadow-xs shrink-0`}>
+                  {card.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base font-bold text-slate-800 truncate">{card.title}</h3>
+                  <p className="text-slate-400 text-xs mt-0.5 line-clamp-1">{card.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+        </div>
+
+      </div>
     </div>
   );
 };
