@@ -14,8 +14,8 @@ build/
 backend/.env
 
 # Temporary and backup directories
-_backup_current_ui_state/
-_restored_state_1451/
+_backup*/
+_restored*/
 
 # Logs
 logs/
