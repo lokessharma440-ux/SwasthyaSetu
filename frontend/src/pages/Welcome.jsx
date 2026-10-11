@@ -17,12 +17,13 @@ const Welcome = () => {
   const recognitionRef = useRef(null);
 
   useEffect(() => {
-    if (patient && !patient.isLocal) {
-        // navigate('/patient/home'); 
+    if (patient) {
+      navigate('/patient/home', { replace: true });
     }
   }, [patient, navigate]);
 
   useEffect(() => {
+    if (patient) return;
     // Auto-start listening after 2 seconds of landing on the page
     const timer = setTimeout(() => {
       if (!isListening && !showLanguagePicker) {
@@ -30,7 +31,7 @@ const Welcome = () => {
       }
     }, 2000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [patient, isListening, showLanguagePicker]);
 
   const initSpeechRecognition = () => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {

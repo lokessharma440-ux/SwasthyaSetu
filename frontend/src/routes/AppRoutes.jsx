@@ -19,12 +19,26 @@ import DoctorDashboard from '../pages/doctor/DoctorDashboard';
 import ComplaintDetail from '../pages/doctor/ComplaintDetail';
 
 import HealthWorkerDashboard from '../pages/healthWorker/HealthWorkerDashboard';
+import { usePatient } from '../context/PatientContext';
+
+const RootRoute = () => {
+  const { patient } = usePatient();
+  return <Navigate to={patient ? "/patient/home" : "/welcome"} replace />;
+};
+
+const WelcomeRoute = () => {
+  const { patient } = usePatient();
+  if (patient) {
+    return <Navigate to="/patient/home" replace />;
+  }
+  return <Welcome />;
+};
 
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/welcome" replace />} />
-      <Route path="/welcome" element={<Welcome />} />
+      <Route path="/" element={<RootRoute />} />
+      <Route path="/welcome" element={<WelcomeRoute />} />
       
       <Route path="/patient" element={<PatientLayout />}>
         <Route index element={<Navigate to="home" replace />} />
@@ -47,7 +61,7 @@ const AppRoutes = () => {
       <Route path="/health-worker" element={<HealthWorkerDashboard />} />
       
       {/* Catch all */}
-      <Route path="*" element={<Navigate to="/welcome" replace />} />
+      <Route path="*" element={<RootRoute />} />
     </Routes>
   );
 };

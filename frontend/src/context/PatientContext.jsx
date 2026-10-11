@@ -5,21 +5,23 @@ const PatientContext = createContext();
 export const usePatient = () => useContext(PatientContext);
 
 export const PatientProvider = ({ children }) => {
-  const [patient, setPatient] = useState(null);
-  const [complaint, setComplaint] = useState(null);
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  useEffect(() => {
-    const savedPatient = localStorage.getItem('swasthyasetu_patient');
-    if (savedPatient) {
-      try { setPatient(JSON.parse(savedPatient)); } catch (e) {}
+  const [patient, setPatient] = useState(() => {
+    try {
+      const saved = localStorage.getItem('swasthyasetu_patient');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
     }
-    const savedComplaint = localStorage.getItem('swasthyasetu_complaint');
-    if (savedComplaint) {
-      try { setComplaint(JSON.parse(savedComplaint)); } catch (e) {}
+  });
+  const [complaint, setComplaint] = useState(() => {
+    try {
+      const saved = localStorage.getItem('swasthyasetu_complaint');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
     }
-    setIsLoaded(true);
-  }, []);
+  });
+  const [isLoaded, setIsLoaded] = useState(true);
 
   const savePatient = (data) => {
     setPatient(data);
