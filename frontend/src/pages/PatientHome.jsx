@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, MessageSquareText, ClipboardList, Mic, Activity, Bell, MapPin, AlertTriangle, Settings, Sparkles, ChevronRight } from 'lucide-react';
+import { User, MessageSquareText, ClipboardList, Mic, Activity, Bell, MapPin, AlertTriangle, Settings, Sparkles } from 'lucide-react';
 import StatusBadge from '../components/StatusBadge';
 import { usePatient } from '../context/PatientContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -255,39 +255,6 @@ const PatientHome = () => {
               </div>
             ))}
           </div>
-
-          {/* Community Health Care Banner */}
-          <div className="relative overflow-hidden rounded-3xl bg-white border border-slate-100 shadow-sm p-5 sm:p-6 flex flex-col sm:flex-row items-center gap-5 hover:shadow-md transition-shadow">
-            <div className="w-full sm:w-48 h-36 rounded-2xl overflow-hidden shrink-0 shadow-sm relative group">
-              <img
-                src="/images/rural_clinic.jpg"
-                alt="Rural Healthcare Clinic"
-                className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                loading="lazy"
-              />
-            </div>
-            <div className="flex-1 space-y-2 text-center sm:text-left">
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100/70">
-                {t('home_community_tag')}
-              </span>
-              <h4 className="text-base sm:text-lg font-bold text-slate-800 leading-snug">
-                {t('home_community_title')}
-              </h4>
-              <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">
-                {t('home_community_desc')}
-              </p>
-              <div className="pt-1">
-                <button
-                  onClick={() => navigate('/patient/facilities')}
-                  className="text-emerald-700 font-bold text-xs sm:text-sm hover:underline inline-flex items-center gap-1.5"
-                >
-                  <span>{t('facilities')}</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-
         </div>
 
       </div>
