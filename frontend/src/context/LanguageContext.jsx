@@ -151,7 +151,12 @@ export const LanguageProvider = ({ children }) => {
         "services": "स्वास्थ्य सेवाएं",
         "documents_subtitle": "अपनी जांच रिपोर्ट और पर्चे प्रबंधित करें",
         "profile_subtitle": "मरीज़ की पहचान और व्यक्तिगत जानकारी",
-        "register_subtitle": "बोलकर या आसानी से मरीज़ का पंजीकरण करें"
+        "register_subtitle": "बोलकर या आसानी से मरीज़ का पंजीकरण करें",
+        "home_doctor_banner_title": "घर बैठे डॉक्टर से जांच और सही सलाह पाएं",
+        "home_doctor_banner_desc": "अपनी भाषा में बोलें — हमारा AI और विशेषज्ञ डॉक्टर आपकी समस्या सुनकर तुरंत मार्गदर्शन देंगे।",
+        "home_community_tag": "समुदाय स्वास्थ्य एवं कल्याण",
+        "home_community_title": "नज़दीकी स्वास्थ्य केंद्र एवं प्राथमिक उपचार",
+        "home_community_desc": "सरकारी अस्पताल, प्राथमिक स्वास्थ्य केंद्र (PHC) और आपातकालीन सुविधाएं हमेशा आपके साथ।"
     },
     "en-US": {
         "profile": "My Profile",
@@ -284,7 +289,12 @@ export const LanguageProvider = ({ children }) => {
         "services": "Healthcare Services",
         "documents_subtitle": "Manage your medical records and lab reports",
         "profile_subtitle": "Patient identification and demographic details",
-        "register_subtitle": "Voice-guided simple patient registration"
+        "register_subtitle": "Voice-guided simple patient registration",
+        "home_doctor_banner_title": "Get Expert Doctor Care Directly from Home",
+        "home_doctor_banner_desc": "Speak in your own language — our AI and specialist doctors are ready to help you quickly.",
+        "home_community_tag": "Community Health & Care",
+        "home_community_title": "Nearby Health Centers & Primary Care",
+        "home_community_desc": "Public hospitals, Primary Health Centers (PHC), and emergency support are always within reach."
     },
     "gu-IN": {
         "profile": "મારી પ્રોફાઇલ",
@@ -417,7 +427,12 @@ export const LanguageProvider = ({ children }) => {
         "services": "આરોગ્ય સેવાઓ",
         "documents_subtitle": "તમારા તબીબી અહેવાલો અને પ્રિસ્ક્રિપ્શન મેનેજ કરો",
         "profile_subtitle": "દર્દીની ઓળખ અને વ્યક્તિગત વિગતો",
-        "register_subtitle": "બોલીને અથવા સરળતાથી દર્દીની નોંધણી કરો"
+        "register_subtitle": "બોલીને અથવા સરળતાથી દર્દીની નોંધણી કરો",
+        "home_doctor_banner_title": "ઘરે બેઠા ડૉક્ટર પાસેથી તપાસ અને સાચી સલાહ મેળવો",
+        "home_doctor_banner_desc": "તમારી ભાષામાં બોલો — અમારા AI અને નિષ્ણાત ડૉક્ટરો તમને ઝડપી માર્ગદર્શન આપશે.",
+        "home_community_tag": "સમુદાય આરોગ્ય અને કલ્યાણ",
+        "home_community_title": "નજીકના આરોગ્ય કેન્દ્રો અને પ્રાથમિક સારવાર",
+        "home_community_desc": "સરકારી હોસ્પિટલો, પ્રાથમિક આરોગ્ય કેન્દ્રો (PHC) અને ઇમરજન્સી સુવિધાઓ હંમેશા તમારી સાથે."
     },
     "te-IN": {
         "profile": "నా ప్రొఫైల్",
@@ -550,7 +565,12 @@ export const LanguageProvider = ({ children }) => {
         "services": "ఆరోగ్య సేవలు",
         "documents_subtitle": "మీ వైద్య రికార్డులు మరియు ల్యాబ్ నివేదికలను నిర్వహించండి",
         "profile_subtitle": "రోగి గుర్తింపు మరియు వ్యక్తిగత వివరాలు",
-        "register_subtitle": "వాయిస్ ద్వారా సులభమైన రోగి నమోదు"
+        "register_subtitle": "వాయిస్ ద్వారా సులభమైన రోగి నమోదు",
+        "home_doctor_banner_title": "ఇంటి నుంచే నిపుణులైన వైద్యుల సలహా పొందండి",
+        "home_doctor_banner_desc": "మీ స్వంత భాషలో మాట్లాడండి — మా AI మరియు నిపుణులైన వైద్యులు మీకు వెంటనే సహాయం చేస్తారు.",
+        "home_community_tag": "కమ్యూనిటీ ఆరోగ్యం మరియు సంరక్షణ",
+        "home_community_title": "సమీప ఆరోగ్య కేంద్రాలు మరియు ప్రాథమిక సంరక్షణ",
+        "home_community_desc": "ప్రభుత్వ ఆసుపత్రులు, ప్రాథమిక ఆరోగ్య కేంద్రాలు (PHC) మరియు అత్యవసర సేవలు మీకు అందుబాటులో ఉన్నాయి."
     },
     "mr-IN": {
         "profile": "माझी माहिती",
@@ -683,7 +703,12 @@ export const LanguageProvider = ({ children }) => {
         "services": "आरोग्य सेवा",
         "documents_subtitle": "तुमचे वैद्यकीय अहवाल आणि प्रिस्क्रिप्शन व्यवस्थापित करा",
         "profile_subtitle": "रुग्णाची ओळख आणि वैयक्तिक तपशील",
-        "register_subtitle": "बोलून किंवा सोप्या पद्धतीने रुग्णाची नोंदणी करा"
+        "register_subtitle": "बोलून किंवा सोप्या पद्धतीने रुग्णाची नोंदणी करा",
+        "home_doctor_banner_title": "घरी बसून डॉक्टरांकडून तपासणी आणि योग्य सल्ला मिळवा",
+        "home_doctor_banner_desc": "तुमच्या भाषेत बोला — आमचे AI आणि तज्ज्ञ डॉक्टर तुम्हाला त्वरित मार्गदर्शन करतील.",
+        "home_community_tag": "समुदाय आरोग्य आणि कल्याण",
+        "home_community_title": "जवळची आरोग्य केंद्रे आणि प्राथमिक उपचार",
+        "home_community_desc": "सरकारी रुग्णालये, प्राथमिक आरोग्य केंद्रे (PHC) आणि आपत्कालीन सुविधा नेहमी उपलब्ध."
     }
 };
 

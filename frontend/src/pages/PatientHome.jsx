@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, MessageSquareText, ClipboardList, Mic, Activity, Bell, MapPin, AlertTriangle, Settings } from 'lucide-react';
+import { User, MessageSquareText, ClipboardList, Mic, Activity, Bell, MapPin, AlertTriangle, Settings, Sparkles, ChevronRight } from 'lucide-react';
 import StatusBadge from '../components/StatusBadge';
 import { usePatient } from '../context/PatientContext';
 import { useLanguage } from '../context/LanguageContext';
 import Button from '../components/Button';
 import { getDoctorResponse } from '../services/api';
+import heroDoctorImg from '../assets/imggg.jpeg';
 
 const PatientHome = () => {
   const navigate = useNavigate();
@@ -84,10 +85,10 @@ const PatientHome = () => {
   return (
     <div className="w-full">
       <div className="lg:grid lg:grid-cols-12 lg:gap-8 lg:items-start">
-        
+
         {/* Left Column (Desktop: 5 cols / Mobile: stacked) */}
         <div className="lg:col-span-5 flex flex-col space-y-6">
-          
+
           {/* Greeting Card */}
           <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex items-center justify-between">
             <div className="flex-1 pr-3">
@@ -110,13 +111,13 @@ const PatientHome = () => {
           <div className="bg-gradient-to-b from-white via-white to-emerald-50/40 rounded-3xl p-7 shadow-sm border border-emerald-100/70 flex flex-col items-center justify-center text-center relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-100/40 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
             <div className="absolute bottom-0 left-0 w-32 h-32 bg-teal-100/40 rounded-full blur-2xl -ml-10 -mb-10 pointer-events-none"></div>
-            
+
             <p className="text-slate-600 font-semibold text-base mb-6 relative z-10">{t('speak_problem')}</p>
-            
+
             <div className="relative mb-6">
               {/* Subtle pulse ripple */}
               <div className="absolute inset-0 rounded-full bg-emerald-400/20 animate-ping opacity-40"></div>
-              <button 
+              <button
                 onClick={() => navigate('/patient/complaint')}
                 className="relative z-10 flex items-center justify-center w-36 h-36 rounded-full shadow-xl shadow-emerald-600/20 transition-all duration-300 bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 active:scale-95 ring-8 ring-emerald-500/15 hover:ring-emerald-500/25 cursor-pointer"
                 aria-label={t('tell_problem')}
@@ -139,14 +140,14 @@ const PatientHome = () => {
                 <StatusBadge
                   status={
                     complaint.status === 'RESPONDED' ? 'responded' :
-                    complaint.status === 'UNDER_REVIEW' ? 'viewed' :
-                    'saved'
+                      complaint.status === 'UNDER_REVIEW' ? 'viewed' :
+                        'saved'
                   }
                   labelOverride={
                     complaint.status === 'READY_FOR_DOCTOR' ? t('ready_for_doctor') :
-                    complaint.status === 'UNDER_REVIEW' ? t('under_review') :
-                    complaint.status === 'RESPONDED' ? t('responded') :
-                    complaint.status
+                      complaint.status === 'UNDER_REVIEW' ? t('under_review') :
+                        complaint.status === 'RESPONDED' ? t('responded') :
+                          complaint.status
                   }
                 />
               </div>
@@ -162,7 +163,42 @@ const PatientHome = () => {
 
         {/* Right Column (Desktop: 7 cols / Mobile: stacked) */}
         <div className="lg:col-span-7 flex flex-col space-y-6 mt-6 lg:mt-0">
-          
+
+          {/* Featured Doctor Consultation Hero Banner (imggg) */}
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-700 to-emerald-800 text-white shadow-md p-6 sm:p-7 flex flex-col md:flex-row items-center justify-between gap-6 border border-emerald-500/30">
+            <div className="relative z-10 flex-1 space-y-3 text-center md:text-left">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-xs font-semibold text-emerald-100 shadow-xs">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-300" />
+                <span>SwasthyaSetu {t('rural_health_tag')}</span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-black tracking-tight leading-snug">
+                {t('home_doctor_banner_title')}
+              </h3>
+              <p className="text-emerald-100 text-xs sm:text-sm leading-relaxed max-w-md">
+                {t('home_doctor_banner_desc')}
+              </p>
+              <div className="pt-2">
+                <button
+                  onClick={() => navigate('/patient/complaint')}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white text-emerald-800 font-bold text-sm shadow-md hover:bg-emerald-50 active:scale-95 transition-all"
+                >
+                  <Mic className="w-4 h-4 text-emerald-600" />
+                  <span>{t('tell_problem')}</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="relative shrink-0 w-full sm:w-64 md:w-72 h-48 sm:h-56 rounded-2xl overflow-hidden border-2 border-white/30 shadow-xl bg-white/10 group">
+              <img
+                src={heroDoctorImg}
+                alt="SwasthyaSetu Rural Health Doctor"
+                className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                loading="eager"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none"></div>
+            </div>
+          </div>
+
           {!patient && (
             <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-3xl p-5 border border-orange-200/70 flex items-center justify-between shadow-sm">
               <div>
@@ -218,6 +254,38 @@ const PatientHome = () => {
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Community Health Care Banner */}
+          <div className="relative overflow-hidden rounded-3xl bg-white border border-slate-100 shadow-sm p-5 sm:p-6 flex flex-col sm:flex-row items-center gap-5 hover:shadow-md transition-shadow">
+            <div className="w-full sm:w-48 h-36 rounded-2xl overflow-hidden shrink-0 shadow-sm relative group">
+              <img
+                src="/images/rural_clinic.jpg"
+                alt="Rural Healthcare Clinic"
+                className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                loading="lazy"
+              />
+            </div>
+            <div className="flex-1 space-y-2 text-center sm:text-left">
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100/70">
+                {t('home_community_tag')}
+              </span>
+              <h4 className="text-base sm:text-lg font-bold text-slate-800 leading-snug">
+                {t('home_community_title')}
+              </h4>
+              <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">
+                {t('home_community_desc')}
+              </p>
+              <div className="pt-1">
+                <button
+                  onClick={() => navigate('/patient/facilities')}
+                  className="text-emerald-700 font-bold text-xs sm:text-sm hover:underline inline-flex items-center gap-1.5"
+                >
+                  <span>{t('facilities')}</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
           </div>
 
         </div>
