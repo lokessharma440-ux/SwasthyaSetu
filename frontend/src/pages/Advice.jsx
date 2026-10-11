@@ -71,13 +71,13 @@ const Advice = () => {
           <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 mb-6">
             <Stethoscope className="w-10 h-10" />
           </div>
-          <h3 className="text-xl font-bold text-neutral-text mb-2">No advice available yet.</h3>
+          <h3 className="text-xl font-bold text-neutral-text mb-2">{t('no_advice_yet')}</h3>
           {complaint && complaint.doctorId === null ? (
             <p className="text-orange-600 font-medium bg-orange-50 p-4 rounded-xl border border-orange-100 mt-2">
-              A doctor is not currently assigned to your area. Your request has been recorded and will be reviewed soon.
+              {t('no_doctor_assigned')}
             </p>
           ) : (
-            <p className="text-neutral-muted">Advice will appear here once the doctor has reviewed your problem.</p>
+            <p className="text-neutral-muted">{t('advice_pending')}</p>
           )}
         </div>
       ) : (
@@ -115,12 +115,12 @@ const Advice = () => {
                   text={(() => {
                     let speech = t('advice') + '.\n\n';
                     if (response.guidance) speech += `${t('advice')}: ${response.guidance}\n\n`;
-                    if (response.precautions) speech += `Precautions: ${response.precautions}\n\n`;
-                    if (response.medicines) speech += `Medicines: ${response.medicines}\n\n`;
+                    if (response.precautions) speech += `${t('precautions')}: ${response.precautions}\n\n`;
+                    if (response.medicines) speech += `${t('medicines_instructions')}: ${response.medicines}\n\n`;
                     if (response.followUp && response.followUp.date) {
                       const dateObj = new Date(response.followUp.date);
                       if (!isNaN(dateObj)) {
-                          speech += `Follow-up: ${dateObj.toLocaleDateString()}. ${response.followUp.note || ''}\n\n`;
+                          speech += `${t('follow_up_label')}: ${dateObj.toLocaleDateString()}. ${response.followUp.note || ''}\n\n`;
                       }
                     }
                     return speech;
@@ -134,7 +134,7 @@ const Advice = () => {
           {response.precautions && (
              <div className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100">
               <h3 className="font-bold text-lg text-neutral-text mb-2">
-                Precautions
+                {t('precautions')}
               </h3>
               <p className="text-neutral-muted whitespace-pre-wrap">{response.precautions}</p>
              </div>
@@ -145,7 +145,7 @@ const Advice = () => {
             <div className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100">
               <h3 className="font-bold text-lg text-neutral-text mb-4 flex items-center gap-2">
                 <Pill className="w-5 h-5 text-blue-500" />
-                Medicines / Instructions
+                {t('medicines_instructions')}
               </h3>
               <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
                 <p className="text-neutral-text whitespace-pre-wrap">{response.medicines}</p>

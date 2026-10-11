@@ -44,6 +44,30 @@ const History = () => {
     return <Clock className="w-5 h-5 text-gray-500" />;
   };
 
+  const getLocalizedType = (type) => {
+    if (!type) return '';
+    if (type.includes('Registered')) return t('timeline_registered');
+    if (type.includes('Complaint')) return t('timeline_complaint');
+    if (type.includes('Doctor Reviewed')) return t('timeline_doctor_review');
+    if (type.includes('Assigned')) return t('timeline_doctor_assigned');
+    if (type.includes('Advice') || type.includes('Response')) return t('timeline_advice');
+    if (type.includes('Follow-up')) return t('timeline_follow_up');
+    if (type.includes('Document')) return t('timeline_document');
+    return type;
+  };
+
+  const getLocalizedDescription = (item) => {
+    if (!item) return '';
+    if (item.type?.includes('Registered')) return t('timeline_registered');
+    if (item.type?.includes('Doctor Reviewed')) return t('under_review');
+    if (item.type?.includes('Advice')) return t('responded');
+    if (item.type?.includes('Follow-up') && item.data?.followUp?.date) {
+      const d = formatDate(item.data.followUp.date);
+      return `${t('next_checkup')}: ${d}${item.data.followUp.note ? `\n${item.data.followUp.note}` : ''}`;
+    }
+    return item.description;
+  };
+
   const getStatusKey = (status) => {
     if (status === 'UNDER_REVIEW' || status === 'viewed') return 'viewed';
     if (status === 'RESPONDED' || status === 'responded' || status === 'completed') return 'responded';
@@ -93,7 +117,7 @@ const History = () => {
             ) : (
               <Clock className="w-12 h-12 text-gray-300 mb-4" />
             )}
-            <p className="text-neutral-muted">{error || 'No history available.'}</p>
+            <p className="text-neutral-muted">{error || t('no_history')}</p>
           </div>
         ) : (
           <div className="relative border-l-2 border-gray-100 ml-4 space-y-8 pb-4">
@@ -116,17 +140,17 @@ const History = () => {
                     {item.status && item.status !== 'completed' && (
                       <StatusBadge 
                         status={statusKey} 
-                        labelOverride={item.status === 'pending' ? 'Pending' : undefined} 
+                        labelOverride={item.status === 'pending' ? t('saved') : undefined} 
                       />
                     )}
                   </div>
                   
                   <div className="flex items-center gap-2 mb-2">
                     {getIcon(item.type)}
-                    <span className="font-semibold text-neutral-text">{item.type}</span>
+                    <span className="font-semibold text-neutral-text">{getLocalizedType(item.type)}</span>
                   </div>
                   
-                  <p className="text-neutral-muted text-sm whitespace-pre-wrap">{item.description}</p>
+                  <p className="text-neutral-muted text-sm whitespace-pre-wrap">{getLocalizedDescription(item)}</p>
                 </div>
               </div>
             )})}

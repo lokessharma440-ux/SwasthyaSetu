@@ -100,7 +100,7 @@ const Complaint = () => {
     setStep('PROCESSING');
     
     try {
-      const extracted = await processComplaint(finalTranscript);
+      const extracted = await processComplaint(finalTranscript, language);
       setFormData(extracted);
       setVoiceState('completed');
       setTimeout(() => {
@@ -129,7 +129,7 @@ const Complaint = () => {
     setStep('PROCESSING');
     
     try {
-      const extracted = await processComplaint(textInput);
+      const extracted = await processComplaint(textInput, language);
       setFormData(extracted);
       setStep('REVIEW');
     } catch (err) {
@@ -257,7 +257,7 @@ const Complaint = () => {
              <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center text-red-500 mb-6">
                 <AlertCircle className="w-10 h-10" />
               </div>
-              <h3 className="text-2xl font-bold text-neutral-text mb-2">Error</h3>
+              <h3 className="text-2xl font-bold text-neutral-text mb-2">{t('error_title')}</h3>
               <p className="text-neutral-muted mb-8 whitespace-pre-wrap">{errorMessage}</p>
               
               <Button size="lg" className="w-full mb-4 flex items-center justify-center gap-2" onClick={() => setStep('START')}>

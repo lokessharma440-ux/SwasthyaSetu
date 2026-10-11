@@ -157,7 +157,7 @@ export const getPrompt = (language, key, params = {}) => {
     }
   };
 
-  let str = dictionary[language]?.[key] || dictionary['hi-IN']?.[key] || key;
+  let str = dictionary[language]?.[key] || dictionary['en-US']?.[key] || dictionary['hi-IN']?.[key] || key;
   for (const [k, v] of Object.entries(params)) {
     str = str.replace(`{${k}}`, v);
   }

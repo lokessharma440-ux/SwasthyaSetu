@@ -113,16 +113,16 @@ const MedicalDocuments = () => {
       <div className="space-y-4">
         {(!patient || patient.isLocal) ? (
           <div className="bg-orange-50 p-6 rounded-2xl text-center border border-orange-100">
-            <p className="text-orange-800 font-medium">Please complete profile first.</p>
+            <p className="text-orange-800 font-medium">{t('please_complete_profile')}</p>
           </div>
         ) : documents.length === 0 ? (
           <div className="bg-white p-8 rounded-3xl border border-gray-100 text-center shadow-sm flex flex-col items-center justify-center h-64">
              <div className="bg-gray-50 p-4 rounded-full mb-4">
                 <FileText className="w-10 h-10 text-gray-300" />
              </div>
-             <p className="text-neutral-muted mb-4">No documents found.</p>
+             <p className="text-neutral-muted mb-4">{t('no_documents')}</p>
              <Button onClick={() => setShowUploadModal(true)} variant="outline" className="flex items-center gap-2">
-               <Upload className="w-4 h-4" /> Upload Document
+               <Upload className="w-4 h-4" /> {t('upload_document')}
              </Button>
           </div>
         ) : (
@@ -134,7 +134,7 @@ const MedicalDocuments = () => {
               <div className="flex-1 overflow-hidden">
                 <h3 className="font-bold text-neutral-text truncate">{doc.fileName}</h3>
                 <p className="text-xs text-neutral-muted mt-1">
-                  {new Date(doc.uploadDate).toLocaleDateString()} • {doc.documentType}
+                  {new Date(doc.uploadDate).toLocaleDateString()} • {t(doc.documentType) || doc.documentType}
                 </p>
               </div>
             </div>
@@ -147,7 +147,7 @@ const MedicalDocuments = () => {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl p-6 w-full max-w-sm animate-in zoom-in-95 duration-200">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold">Add Document</h3>
+              <h3 className="text-xl font-bold">{t('add_document')}</h3>
               <button onClick={() => setShowUploadModal(false)} className="text-gray-400 hover:text-gray-600">
                 <X className="w-6 h-6" />
               </button>
@@ -155,21 +155,21 @@ const MedicalDocuments = () => {
             
             <form onSubmit={handleUpload} className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Document Type</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">{t('document_type')}</label>
                 <select 
                   className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500"
                   value={docType}
                   onChange={(e) => setDocType(e.target.value)}
                 >
-                  <option value="prescription">Prescription</option>
-                  <option value="lab_report">Lab Report</option>
-                  <option value="scan">Scan (X-Ray/MRI)</option>
-                  <option value="other">Other</option>
+                  <option value="prescription">{t('prescription')}</option>
+                  <option value="lab_report">{t('lab_report')}</option>
+                  <option value="scan">{t('scan')}</option>
+                  <option value="other">{t('other_doc')}</option>
                 </select>
               </div>
               
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Choose File</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">{t('choose_file')}</label>
                 <input 
                   type="file" 
                   onChange={(e) => setFile(e.target.files[0])}
@@ -180,10 +180,10 @@ const MedicalDocuments = () => {
 
               <div className="pt-4 flex gap-3">
                 <Button type="button" variant="outline" className="flex-1 justify-center" onClick={() => setShowUploadModal(false)}>
-                  Cancel
+                  {t('cancel')}
                 </Button>
                 <Button type="submit" variant="primary" className="flex-1 justify-center" disabled={!file || uploading}>
-                  {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Upload'}
+                  {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : t('upload_btn')}
                 </Button>
               </div>
             </form>

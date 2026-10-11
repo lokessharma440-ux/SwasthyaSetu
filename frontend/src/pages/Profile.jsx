@@ -74,7 +74,9 @@ const Profile = () => {
               </div>
               <div className="flex-1">
                 <p className="text-neutral-muted text-sm mb-1">{t('gender')}</p>
-                <p className="text-xl font-semibold text-neutral-text">{patient.gender}</p>
+                <p className="text-xl font-semibold text-neutral-text">
+                  {patient.gender === 'Male' ? t('gender_male') : patient.gender === 'Female' ? t('gender_female') : patient.gender === 'Other' ? t('gender_other') : patient.gender}
+                </p>
               </div>
             </div>
 

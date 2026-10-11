@@ -21,7 +21,7 @@ const HealthcareFacilities = () => {
         setFacilities(data.data);
       }
     } catch (err) {
-      setError('Error loading facilities.');
+      setError(t('error_facilities'));
     } finally {
       setIsLoading(false);
     }
@@ -104,24 +104,24 @@ const HealthcareFacilities = () => {
         >
           <ArrowLeft className="w-6 h-6" />
         </button>
-        <h2 className="text-2xl font-bold text-neutral-text">Healthcare Centers</h2>
+        <h2 className="text-2xl font-bold text-neutral-text">{t('healthcare_centers')}</h2>
       </div>
 
       <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col mb-4">
         {!userLocation ? (
           <div className="text-center">
              <MapPin className="w-12 h-12 text-blue-500 mx-auto mb-3" />
-             <p className="text-neutral-muted mb-4">Allow location to find nearby hospitals.</p>
+             <p className="text-neutral-muted mb-4">{t('allow_location_prompt')}</p>
              <Button onClick={handleGetLocation} disabled={locationStatus === 'loading'} className="w-full justify-center">
-               {locationStatus === 'loading' ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Find Nearby'}
+               {locationStatus === 'loading' ? <Loader2 className="w-5 h-5 animate-spin" /> : t('find_nearby_btn')}
              </Button>
              {locationStatus === 'denied' && (
-               <p className="text-red-500 text-sm mt-3">Location access denied.</p>
+               <p className="text-red-500 text-sm mt-3">{t('location_denied')}</p>
              )}
           </div>
         ) : (
           <div className="text-center text-green-600 font-bold flex items-center justify-center gap-2">
-            <MapPin className="w-5 h-5" /> Location Received
+            <MapPin className="w-5 h-5" /> {t('location_received')}
           </div>
         )}
       </div>
@@ -131,7 +131,7 @@ const HealthcareFacilities = () => {
           <div key={idx} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 relative">
             {facility.isEmergencyAvailable && (
               <span className="absolute top-4 right-4 bg-red-100 text-red-700 text-xs font-bold px-2 py-1 rounded-md">
-                Emergency Available
+                {t('emergency_available')}
               </span>
             )}
             
@@ -142,19 +142,19 @@ const HealthcareFacilities = () => {
             
             {facility.distance && (
               <p className="text-green-600 font-bold text-sm mt-2 flex items-center gap-1">
-                <Navigation className="w-4 h-4" /> {facility.distance.toFixed(1)} km away
+                <Navigation className="w-4 h-4" /> {facility.distance.toFixed(1)} {t('km_away')}
               </p>
             )}
 
             <div className="flex flex-wrap gap-2 mt-4">
               {facility.phone && (
                 <Button variant="outline" size="sm" onClick={() => handleCall(facility.phone)} className="flex items-center gap-2 flex-1 justify-center">
-                  <Phone className="w-4 h-4" /> Call
+                  <Phone className="w-4 h-4" /> {t('call_btn')}
                 </Button>
               )}
               {facility.latitude && facility.longitude && (
                 <Button variant="primary" size="sm" onClick={() => handleNavigate(facility.latitude, facility.longitude)} className="flex items-center gap-2 flex-1 justify-center">
-                  <MapPin className="w-4 h-4" /> Directions
+                  <MapPin className="w-4 h-4" /> {t('directions_btn')}
                 </Button>
               )}
             </div>

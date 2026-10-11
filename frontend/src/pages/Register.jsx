@@ -350,7 +350,7 @@ const Register = () => {
             
             <div className="text-center mb-8 flex-1 flex flex-col justify-center">
               <p className="text-neutral-muted uppercase tracking-wider text-sm font-bold mb-2">
-                {currentField} ({confirmedCount + 1} / {FIELD_ORDER.length})
+                {t(currentField)} ({confirmedCount + 1} / {FIELD_ORDER.length})
               </p>
               
               <h3 className="text-2xl font-bold text-neutral-text mb-2 min-h-[4rem] flex items-center justify-center">
@@ -366,7 +366,7 @@ const Register = () => {
                   onClickOverride={handleMicClick}
                   interimTextOverride={voiceState === 'listening' ? (interimTranscript || transcript) : ''}
                   idleText={t(`say_${currentField}`) || t('tell_problem')}
-                  idleSubtext={language.startsWith('hi') ? 'बोलने के लिए दबाएं • रोकने के लिए दोबारा दबाएं' : 'Tap to start speaking • Tap to stop'}
+                  idleSubtext={t('mic_tap_instruction')}
                 />
                 
                 {fields[currentField].retries > 0 && (
@@ -385,7 +385,7 @@ const Register = () => {
                 <div className="bg-primary-light/20 p-6 rounded-2xl w-full text-center mb-8 border border-primary-light">
                   <span className="text-3xl font-bold text-primary-dark">
                     {currentField === 'gender' 
-                      ? (tempValue === 'Male' ? 'पुरुष (Male)' : tempValue === 'Female' ? 'महिला (Female)' : tempValue) 
+                      ? (tempValue === 'Male' ? t('gender_male') : tempValue === 'Female' ? t('gender_female') : tempValue === 'Other' ? t('gender_other') : tempValue) 
                       : tempValue}
                   </span>
                 </div>
@@ -404,7 +404,7 @@ const Register = () => {
             {appState === 'MANUAL_FALLBACK' && (
               <div className="flex flex-col flex-1 animate-in slide-in-from-bottom">
                 <div className="mb-6">
-                  <label className="block text-sm font-bold text-neutral-muted mb-2 uppercase">{currentField}</label>
+                  <label className="block text-sm font-bold text-neutral-muted mb-2 uppercase">{t(currentField)}</label>
                   
                   {currentField === 'gender' ? (
                     <select 
@@ -413,9 +413,9 @@ const Register = () => {
                       className="w-full p-4 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary text-lg bg-white"
                     >
                       <option value="">-- {t('say_gender')} --</option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                      <option value="Other">Other</option>
+                      <option value="Male">{t('gender_male')}</option>
+                      <option value="Female">{t('gender_female')}</option>
+                      <option value="Other">{t('gender_other')}</option>
                     </select>
                   ) : (
                     <input 
@@ -423,7 +423,7 @@ const Register = () => {
                       value={manualInput}
                       onChange={e => setManualInput(e.target.value)}
                       className="w-full p-4 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary text-lg"
-                      placeholder={`Enter ${currentField}`}
+                      placeholder={t('enter_field', { field: t(currentField) })}
                       autoFocus
                     />
                   )}

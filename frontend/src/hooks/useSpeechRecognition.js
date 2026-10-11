@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 
 export const useSpeechRecognition = (options = {}) => {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const { lang = language, continuous = false, interimResults = true } = options;
 
   const [isListening, setIsListening] = useState(false);
@@ -54,9 +54,9 @@ export const useSpeechRecognition = (options = {}) => {
     recognition.onerror = (event) => {
       console.error('Speech recognition error', event.error);
       if (event.error === 'not-allowed') {
-        setError('माइक्रोफोन की अनुमति नहीं मिली।\nकृपया माइक्रोफोन की अनुमति दें और दोबारा कोशिश करें।');
+        setError(t('mic_permission_denied'));
       } else {
-        setError('हमें आपकी बात सुनाई नहीं दी। कृपया दोबारा बोलें।');
+        setError(t('mic_not_heard'));
       }
       setIsListening(false);
     };
@@ -71,9 +71,9 @@ export const useSpeechRecognition = (options = {}) => {
       window.currentRecognition = recognition;
     } catch (err) {
       console.error(err);
-      setError('माइक्रोफोन शुरू करने में समस्या हुई।');
+      setError(t('mic_start_error'));
     }
-  }, [SpeechRecognition, lang, continuous, interimResults]);
+  }, [SpeechRecognition, lang, continuous, interimResults, t]);
 
   const stopListening = useCallback(() => {
     if (window.currentRecognition) {

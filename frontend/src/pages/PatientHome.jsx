@@ -87,7 +87,7 @@ const PatientHome = () => {
       <div className="mb-6 mt-2 flex justify-between items-start">
         <div>
           <h2 className="text-3xl font-bold text-neutral-text">
-            {firstName ? `${t('hello')} ${firstName} जी 👋` : `${t('hello')} 👋`}
+            {firstName ? t('greeting', { name: firstName }) : t('greeting_simple')}
           </h2>
           <p className="text-xl text-neutral-muted mt-2">{t('how_are_you')}</p>
         </div>
