@@ -1,0 +1,108 @@
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, User, Phone, MapPin, Mic } from 'lucide-react';
+import Button from '../components/Button';
+import { usePatient } from '../context/PatientContext';
+import { useLanguage } from '../context/LanguageContext';
+
+const Profile = () => {
+  const navigate = useNavigate();
+  const { patient, isLoaded } = usePatient();
+  const { t } = useLanguage();
+
+  if (!isLoaded) return null;
+
+  return (
+    <div className="flex flex-col h-full max-w-lg mx-auto pb-4">
+      
+      {/* Header with Back Button */}
+      <div className="flex items-center gap-3 mb-6">
+        <button 
+          onClick={() => navigate(-1)}
+          className="p-2 bg-white rounded-full shadow-sm text-neutral-text hover:bg-gray-50 active:scale-95"
+          aria-label={t('back')}
+        >
+          <ArrowLeft className="w-6 h-6" />
+        </button>
+        <h2 className="text-2xl font-bold text-neutral-text">{t('profile')}</h2>
+      </div>
+
+      {!patient ? (
+        <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 flex-1 flex flex-col items-center justify-center text-center">
+          <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center text-blue-400 mb-6">
+            <User className="w-10 h-10" />
+          </div>
+          <h3 className="text-2xl font-bold text-neutral-text mb-2">{t('complete_profile')}</h3>
+          <p className="text-neutral-muted mb-8 px-4">{t('speak_profile')}</p>
+          
+          <Button 
+            size="lg" 
+            className="w-full py-4 text-xl flex items-center justify-center gap-3 rounded-2xl mb-4"
+            onClick={() => navigate('/patient/register')}
+          >
+            <Mic className="w-6 h-6" />
+            {t('speak_profile')}
+          </Button>
+
+          <Button 
+            variant="ghost"
+            onClick={() => navigate('/patient/register')}
+            className="text-neutral-muted"
+          >
+            {t('type_manually')}
+          </Button>
+        </div>
+      ) : (
+        <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex-1 relative">
+          
+          <div className="flex justify-center mb-8">
+            <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center text-blue-500">
+              <User className="w-12 h-12" />
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div className="border-b border-gray-100 pb-4">
+              <p className="text-neutral-muted text-sm mb-1">{t('name')}</p>
+              <p className="text-xl font-bold text-neutral-text">{patient.name}</p>
+            </div>
+            
+            <div className="flex gap-4 border-b border-gray-100 pb-4">
+              <div className="flex-1">
+                <p className="text-neutral-muted text-sm mb-1">{t('age')}</p>
+                <p className="text-xl font-semibold text-neutral-text">{patient.age}</p>
+              </div>
+              <div className="flex-1">
+                <p className="text-neutral-muted text-sm mb-1">{t('gender')}</p>
+                <p className="text-xl font-semibold text-neutral-text">{patient.gender}</p>
+              </div>
+            </div>
+
+            <div className="border-b border-gray-100 pb-4">
+              <p className="text-neutral-muted text-sm mb-1 flex items-center gap-1">
+                <Phone className="w-4 h-4" /> {t('phone')}
+              </p>
+              <p className="text-xl font-semibold text-neutral-text">{patient.phone}</p>
+            </div>
+
+            <div className="border-b border-gray-100 pb-4">
+              <p className="text-neutral-muted text-sm mb-1 flex items-center gap-1">
+                <MapPin className="w-4 h-4" /> {t('location')}
+              </p>
+              <p className="text-xl font-semibold text-neutral-text">{patient.location}</p>
+            </div>
+          </div>
+
+          <div className="mt-8 flex justify-center">
+             <Button variant="outline" onClick={() => navigate('/patient/register')} className="w-full">
+               {t('change_info')}
+             </Button>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+};
+
+export default Profile;
