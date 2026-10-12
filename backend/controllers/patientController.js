@@ -3,13 +3,20 @@ const Complaint = require('../models/Complaint');
 const { logActivity } = require('../utils/logger');
 const MedicalDocument = require('../models/MedicalDocument');
 const DoctorResponse = require('../models/DoctorResponse');
+const { assignDoctorToPatient, getDemoDoctor } = require('../utils/doctorAssignment');
 
 // @desc    Create new patient
 // @route   POST /api/patients
 exports.createPatient = async (req, res, next) => {
   try {
     const { name, age, gender, location, phone } = req.body;
-    const patient = await Patient.create({ name, age, gender, location, phone });
+    let patient = await Patient.create({ name, age, gender, location, phone });
+    
+    // Automatically assign DOC-DEMO-001 on backend
+    await assignDoctorToPatient(patient);
+    
+    // Reload populated patient
+    patient = await Patient.findById(patient._id).populate('assignedDoctor', 'name doctorId specialization department availability profileStatus consultationMode');
     
     await logActivity({
       action: 'patient_registered',
@@ -29,10 +36,18 @@ exports.createPatient = async (req, res, next) => {
 // @route   GET /api/patients/:id
 exports.getPatient = async (req, res, next) => {
   try {
-    const patient = await Patient.findById(req.params.id);
+    let patient = await Patient.findById(req.params.id);
     if (!patient) {
       return res.status(404).json({ success: false, message: 'Patient not found' });
     }
+
+    // If existing patient has no assigned doctor, automatically assign demo doctor safely on backend
+    if (!patient.assignedDoctor) {
+      await assignDoctorToPatient(patient);
+    }
+
+    patient = await Patient.findById(req.params.id).populate('assignedDoctor', 'name doctorId specialization department availability profileStatus consultationMode');
+
     res.status(200).json({ success: true, data: patient });
   } catch (error) {
     next(error);
@@ -112,11 +127,15 @@ exports.getTimeline = async (req, res, next) => {
 
     // 3. Responses and Follow-ups
     responses.forEach(response => {
+      const isDemo = response.responseType === 'DEMO_AUTO';
       timeline.push({
-        type: 'Doctor Advice',
+        type: isDemo ? 'Interim Health Guidance' : 'Doctor Advice (Authorized)',
         date: response.createdAt,
-        description: 'डॉक्टर की सलाह उपलब्ध है',
+        description: isDemo 
+          ? (response.guidanceTranslated || 'प्राथमिक स्वास्थ्य सलाह उपलब्ध कराई गई')
+          : (response.guidanceTranslated || response.guidance || 'डॉक्टर की सलाह उपलब्ध है (Doctor Consultation Note)'),
         status: 'responded',
+        isDemo: isDemo,
         data: response
       });
 
@@ -150,6 +169,43 @@ exports.getTimeline = async (req, res, next) => {
       data: {
         patient,
         timeline
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get assigned doctor for patient
+// @route   GET /api/patients/:patientId/doctor
+exports.getAssignedDoctor = async (req, res, next) => {
+  try {
+    const patient = await Patient.findById(req.params.patientId);
+    if (!patient) {
+      return res.status(404).json({ success: false, message: 'Patient not found' });
+    }
+
+    let doctor = null;
+    if (patient.assignedDoctor) {
+      doctor = await require('../models/Doctor').findById(patient.assignedDoctor);
+    }
+
+    if (!doctor) {
+      doctor = await assignDoctorToPatient(patient);
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        doctorId: doctor.doctorId,
+        name: doctor.name,
+        specialization: doctor.specialization,
+        department: doctor.department,
+        availability: doctor.availability,
+        profileStatus: doctor.profileStatus,
+        consultationMode: doctor.consultationMode,
+        isDemoDoctor: doctor.isDemoDoctor,
+        notice: "Prototype demonstration profile - Replace with verified medical professional before real patient use."
       }
     });
   } catch (error) {

@@ -12,7 +12,7 @@ const patientSchema = new mongoose.Schema({
   },
   gender: {
     type: String,
-    enum: ['महिला', 'पुरुष', 'अन्य', 'बताना नहीं चाहते']
+    enum: ['महिला', 'पुरुष', 'अन्य', 'बताना नहीं चाहते', 'Male', 'Female', 'Other', 'Prefer not to say']
   },
   location: {
     type: String,
@@ -22,10 +22,14 @@ const patientSchema = new mongoose.Schema({
     type: String,
     validate: {
       validator: function(v) {
-        return /^\d{10}$/.test(v);
+        return !v || /^\d{10}$/.test(v);
       },
       message: props => `${props.value} is not a valid 10-digit phone number!`
     }
+  },
+  assignedDoctor: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Doctor'
   }
 }, {
   timestamps: true

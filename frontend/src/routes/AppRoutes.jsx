@@ -27,10 +27,6 @@ const RootRoute = () => {
 };
 
 const WelcomeRoute = () => {
-  const { patient } = usePatient();
-  if (patient) {
-    return <Navigate to="/patient/home" replace />;
-  }
   return <Welcome />;
 };
 

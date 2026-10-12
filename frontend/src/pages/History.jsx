@@ -46,6 +46,8 @@ const History = () => {
 
   const getLocalizedType = (type) => {
     if (!type) return '';
+    if (type.includes('Interim Health Guidance') || type.includes('Prototype Demo Response')) return 'Interim Health Guidance';
+    if (type.includes('Doctor Advice (Authorized)')) return 'Doctor Consultation Note (Authorized)';
     if (type.includes('Registered')) return t('timeline_registered');
     if (type.includes('Complaint')) return t('timeline_complaint');
     if (type.includes('Doctor Reviewed')) return t('timeline_doctor_review');

@@ -12,6 +12,20 @@ const doctorResponseSchema = new mongoose.Schema({
     ref: 'Patient',
     required: true
   },
+  doctorId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Doctor'
+  },
+  responseType: {
+    type: String,
+    enum: ['DEMO_AUTO', 'DOCTOR_AUTHORIZED'],
+    default: 'DEMO_AUTO'
+  },
+  disclaimer: {
+    type: String,
+    default: "DEMO RESPONSE — NOT A REAL DOCTOR'S CONSULTATION"
+  },
+  // Doctor's Original Response (English)
   guidance: {
     type: String,
     required: true
@@ -21,6 +35,20 @@ const doctorResponseSchema = new mongoose.Schema({
   },
   medicines: {
     type: String
+  },
+  // Translated Response for Patient (in patient's original language)
+  guidanceTranslated: {
+    type: String
+  },
+  precautionsTranslated: {
+    type: String
+  },
+  medicinesTranslated: {
+    type: String
+  },
+  targetLanguage: {
+    type: String,
+    default: 'hi-IN'
   },
   followUp: {
     date: { type: Date },

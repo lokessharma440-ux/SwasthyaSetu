@@ -23,6 +23,21 @@ export const PatientProvider = ({ children }) => {
   });
   const [isLoaded, setIsLoaded] = useState(true);
 
+  // Synchronize patient data (including assigned doctor) with backend on mount
+  useEffect(() => {
+    if (patient && patient._id && !patient.isLocal) {
+      fetch(`http://localhost:5000/api/patients/${patient._id}`)
+        .then(res => res.json())
+        .then(json => {
+          if (json.success && json.data) {
+            setPatient(json.data);
+            localStorage.setItem('swasthyasetu_patient', JSON.stringify(json.data));
+          }
+        })
+        .catch(err => console.warn('Could not sync patient:', err.message));
+    }
+  }, [patient?._id]);
+
   const savePatient = (data) => {
     setPatient(data);
     localStorage.setItem('swasthyasetu_patient', JSON.stringify(data));

@@ -1,25 +1,29 @@
 const express = require('express');
 const { 
   getAllComplaints, 
+  getDoctorStats,
+  getDoctorPatients,
+  getDoctorProfile,
   markComplaintUnderReview, 
   createResponse, 
   getResponseByComplaint, 
-  updateResponse 
+  updateResponse,
+  previewTranslation
 } = require('../controllers/doctorController');
 const { loginDoctor, getMe } = require('../controllers/doctorAuthController');
 
 const router = express.Router();
 
-// Auth routes
+// Live translation preview for doctor composition
+router.post('/translate-preview', previewTranslation);
+
+// Auth routes (public login)
 router.post('/login', loginDoctor);
 router.get('/me', getMe);
 
-// Middleware to enforce doctor authentication
+// Middleware to enforce doctor authentication (defaults to demo doctor in prototype)
 const protectDoctor = (req, res, next) => {
-  const doctorId = req.headers['x-doctor-id'];
-  if (!doctorId) {
-    return res.status(401).json({ success: false, message: 'Not authorized as a doctor' });
-  }
+  const doctorId = req.headers['x-doctor-id'] || 'DOC-DEMO-001';
   req.doctorId = doctorId;
   next();
 };
@@ -27,15 +31,26 @@ const protectDoctor = (req, res, next) => {
 // Protected routes
 router.use(protectDoctor);
 
+// Dashboard overview statistics
+router.get('/stats', getDoctorStats);
+
+// Assigned patient records
+router.get('/patients', getDoctorPatients);
+
+// Doctor Profile
+router.get('/profile', getDoctorProfile);
+
+// Consultation queues & reviews
 router.get('/complaints', getAllComplaints);
 router.patch('/complaints/:id/review', markComplaintUnderReview);
 
+// Consultation responses
 router.post('/responses', createResponse);
 router.get('/responses/complaint/:complaintId', getResponseByComplaint);
 router.put('/responses/:id', updateResponse);
 
-// New unified consultation endpoints for the new UI flow
-router.get('/consultations', getAllComplaints); // Will be handled by the same controller with updated logic
+// Unified consultation endpoints for UI flow
+router.get('/consultations', getAllComplaints);
 router.patch('/consultations/:id/start', markComplaintUnderReview);
 router.patch('/consultations/:id/resolve', createResponse);
 

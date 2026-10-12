@@ -3,9 +3,17 @@ const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const getAuthHeaders = () => {
   const headers = { 'Content-Type': 'application/json' };
-  const doctor = localStorage.getItem('swasthya_doctor');
-  if (doctor) {
-    headers['x-doctor-id'] = JSON.parse(doctor)._id;
+  try {
+    const doctorStr = localStorage.getItem('swasthya_doctor');
+    if (doctorStr) {
+      const doctor = JSON.parse(doctorStr);
+      headers['x-doctor-id'] = doctor._id || doctor.doctorId || 'DOC-DEMO-001';
+    } else {
+      // Default to demo doctor ID for seamless prototype workflow
+      headers['x-doctor-id'] = 'DOC-DEMO-001';
+    }
+  } catch (e) {
+    headers['x-doctor-id'] = 'DOC-DEMO-001';
   }
   return headers;
 };
@@ -15,8 +23,10 @@ const handleResponse = async (res) => {
   if (!res.ok) {
     throw new Error(json.message || 'Something went wrong');
   }
-  return json.data || json;
+  return json.data !== undefined ? json.data : json;
 };
+
+// --- Patient APIs ---
 
 export const createPatient = async (patientData) => {
   const res = await fetch(`${API_BASE}/patients`, {
@@ -32,13 +42,25 @@ export const getPatient = async (id) => {
   return handleResponse(res);
 };
 
+export const getAssignedDoctor = async (patientId) => {
+  const res = await fetch(`${API_BASE}/patients/${patientId}/doctor`);
+  return handleResponse(res);
+};
+
 export const createComplaint = async (complaintData) => {
   const res = await fetch(`${API_BASE}/complaints`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(complaintData)
   });
-  return handleResponse(res);
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || 'Error creating complaint');
+  }
+  return {
+    ...json.data,
+    demoResponse: json.demoResponse
+  };
 };
 
 export const getPatientComplaints = async (patientId) => {
@@ -62,16 +84,38 @@ export const loginDoctor = async (credentials) => {
   return handleResponse(res);
 };
 
-export const getDoctorComplaints = async (status = '', search = '') => {
-  let url = `${API_BASE}/doctor/consultations?`;
+export const getDoctorStats = async () => {
+  const res = await fetch(`${API_BASE}/doctor/stats`, { 
+    headers: getAuthHeaders() 
+  });
+  return handleResponse(res);
+};
+
+export const getDoctorPatients = async () => {
+  const res = await fetch(`${API_BASE}/doctor/patients`, { 
+    headers: getAuthHeaders() 
+  });
+  return handleResponse(res);
+};
+
+export const getDoctorProfile = async () => {
+  const res = await fetch(`${API_BASE}/doctor/profile`, { 
+    headers: getAuthHeaders() 
+  });
+  return handleResponse(res);
+};
+
+export const getDoctorComplaints = async (status = '', search = '', sort = 'newest') => {
+  let url = `${API_BASE}/doctor/complaints?`;
   if (status) url += `status=${status}&`;
-  if (search) url += `search=${encodeURIComponent(search)}`;
+  if (search) url += `search=${encodeURIComponent(search)}&`;
+  if (sort) url += `sort=${sort}`;
   const res = await fetch(url, { headers: getAuthHeaders() });
   return handleResponse(res);
 };
 
 export const markComplaintUnderReview = async (id) => {
-  const res = await fetch(`${API_BASE}/doctor/consultations/${id}/start`, {
+  const res = await fetch(`${API_BASE}/doctor/complaints/${id}/review`, {
     method: 'PATCH',
     headers: getAuthHeaders()
   });
@@ -79,8 +123,8 @@ export const markComplaintUnderReview = async (id) => {
 };
 
 export const createDoctorResponse = async (complaintId, responseData) => {
-  const res = await fetch(`${API_BASE}/doctor/consultations/${complaintId}/resolve`, {
-    method: 'PATCH',
+  const res = await fetch(`${API_BASE}/doctor/responses`, {
+    method: 'POST',
     headers: getAuthHeaders(),
     body: JSON.stringify({ complaintId, ...responseData })
   });
@@ -102,6 +146,16 @@ export const getDoctorResponse = async (complaintId) => {
   });
   const json = await res.json();
   if (!res.ok) throw new Error(json.message || 'Error fetching response');
-  // Return the entire response field, it could be null if no response yet
   return json.response; 
 };
+
+export const previewDoctorTranslation = async (text, targetLang) => {
+  const res = await fetch(`${API_BASE}/doctor/translate-preview`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ text, targetLang })
+  });
+  const json = await res.json();
+  return json.translatedText || '';
+};
+

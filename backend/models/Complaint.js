@@ -25,6 +25,19 @@ const complaintSchema = new mongoose.Schema({
   additionalSymptoms: {
     type: String
   },
+  // English translations for doctor view
+  originalStatementEnglish: {
+    type: String
+  },
+  problemEnglish: {
+    type: String
+  },
+  durationEnglish: {
+    type: String
+  },
+  additionalSymptomsEnglish: {
+    type: String
+  },
   status: {
     type: String,
     enum: ['READY_FOR_DOCTOR', 'UNDER_REVIEW', 'RESPONDED'],
@@ -38,6 +51,17 @@ const complaintSchema = new mongoose.Schema({
   language: {
     type: String,
     default: 'hi-IN'
+  },
+  // Doctor original English response
+  doctorResponse: {
+    type: String
+  },
+  // Translated doctor response in patient's language
+  doctorResponseTranslated: {
+    type: String
+  },
+  resolvedAt: {
+    type: Date
   }
 }, {
   timestamps: true

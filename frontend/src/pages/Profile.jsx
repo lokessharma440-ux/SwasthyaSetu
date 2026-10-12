@@ -96,6 +96,22 @@ const Profile = () => {
               </p>
               <p className="text-xl font-semibold text-neutral-text">{patient.location}</p>
             </div>
+
+            {/* Assigned Doctor Section (Phase 2 Requirement 8 & Phase 7) */}
+            <div className="p-4 bg-emerald-50/80 rounded-2xl border border-emerald-100">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-emerald-800">
+                  Assigned Doctor (Demo Mode)
+                </span>
+                <span className="text-[11px] font-semibold bg-emerald-200/70 text-emerald-900 px-2 py-0.5 rounded-full">
+                  DOC-DEMO-001
+                </span>
+              </div>
+              <p className="text-lg font-extrabold text-slate-800">Dr. Demo Sharma</p>
+              <p className="text-xs font-medium text-slate-600 mt-0.5">
+                General Medicine • Primary Care Physician
+              </p>
+            </div>
           </div>
 
           <div className="mt-8 flex justify-center">
