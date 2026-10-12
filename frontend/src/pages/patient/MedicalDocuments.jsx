@@ -4,6 +4,7 @@ import { ArrowLeft, FileText, Upload, Plus, Loader2, X } from 'lucide-react';
 import { usePatient } from '../../context/PatientContext';
 import { useLanguage } from '../../context/LanguageContext';
 import Button from '../../components/Button';
+import { getPatientDocuments, uploadMedicalDocument } from '../../services/api';
 
 const MedicalDocuments = () => {
   const navigate = useNavigate();
@@ -25,8 +26,7 @@ const MedicalDocuments = () => {
     }
     
     try {
-      const res = await fetch(`http://localhost:5000/api/documents/patient/${patient._id}`);
-      const data = await res.json();
+      const data = await getPatientDocuments(patient._id);
       if (data.success) {
         setDocuments(data.data);
       }
@@ -53,20 +53,16 @@ const MedicalDocuments = () => {
     const mockStoragePath = `/mock-storage/${Date.now()}-${file.name}`;
     
     try {
-      const res = await fetch('http://localhost:5000/api/documents', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          patientId: patient._id,
-          fileName: file.name,
-          fileType: file.type || 'application/pdf',
-          fileSize: file.size,
-          storagePath: mockStoragePath,
-          documentType: docType
-        })
+      const data = await uploadMedicalDocument({
+        patientId: patient._id,
+        fileName: file.name,
+        fileType: file.type || 'application/pdf',
+        fileSize: file.size,
+        storagePath: mockStoragePath,
+        documentType: docType
       });
       
-      if (res.ok) {
+      if (data.success) {
         setShowUploadModal(false);
         setFile(null);
         fetchDocuments();

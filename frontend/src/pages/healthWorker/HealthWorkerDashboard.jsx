@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, AlertCircle, Clock, CheckCircle2, ChevronRight, Activity, Loader2 } from 'lucide-react';
 import StatusBadge from '../../components/StatusBadge';
+import { getHealthWorkerOverview, getHealthWorkerPatients } from '../../services/api';
 
 const HealthWorkerDashboard = () => {
   const navigate = useNavigate();
@@ -13,8 +14,8 @@ const HealthWorkerDashboard = () => {
     const fetchData = async () => {
       try {
         const [overviewRes, patientsRes] = await Promise.all([
-          fetch('http://localhost:5000/api/health-worker/overview').then(r => r.json()),
-          fetch('http://localhost:5000/api/health-worker/patients').then(r => r.json())
+          getHealthWorkerOverview(),
+          getHealthWorkerPatients()
         ]);
         
         if (overviewRes.success) setOverview(overviewRes.data);

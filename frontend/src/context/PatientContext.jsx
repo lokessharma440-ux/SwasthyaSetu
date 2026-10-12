@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
+import { getPatient } from '../services/api';
 
 const PatientContext = createContext();
 
@@ -26,12 +27,11 @@ export const PatientProvider = ({ children }) => {
   // Synchronize patient data (including assigned doctor) with backend on mount
   useEffect(() => {
     if (patient && patient._id && !patient.isLocal) {
-      fetch(`http://localhost:5000/api/patients/${patient._id}`)
-        .then(res => res.json())
-        .then(json => {
-          if (json.success && json.data) {
-            setPatient(json.data);
-            localStorage.setItem('swasthyasetu_patient', JSON.stringify(json.data));
+      getPatient(patient._id)
+        .then(data => {
+          if (data) {
+            setPatient(data);
+            localStorage.setItem('swasthyasetu_patient', JSON.stringify(data));
           }
         })
         .catch(err => console.warn('Could not sync patient:', err.message));

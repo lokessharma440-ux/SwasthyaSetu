@@ -5,7 +5,8 @@ import {
   createDoctorResponse, 
   updateDoctorResponse, 
   markComplaintUnderReview,
-  previewDoctorTranslation
+  previewDoctorTranslation,
+  API_BASE
 } from '../../services/api';
 import { 
   ArrowLeft, 
@@ -26,8 +27,6 @@ import {
   Languages
 } from 'lucide-react';
 import StatusBadge from '../../components/StatusBadge';
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const ComplaintDetail = () => {
   const { id } = useParams();

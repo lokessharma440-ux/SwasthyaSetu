@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, MapPin, Phone, Loader2, Navigation } from 'lucide-react';
 import Button from '../../components/Button';
 import { useLanguage } from '../../context/LanguageContext';
+import { getHealthcareFacilities } from '../../services/api';
 
 const HealthcareFacilities = () => {
   const navigate = useNavigate();
@@ -15,8 +16,7 @@ const HealthcareFacilities = () => {
 
   const fetchFacilities = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/facilities');
-      const data = await res.json();
+      const data = await getHealthcareFacilities();
       if (data.success) {
         setFacilities(data.data);
       }

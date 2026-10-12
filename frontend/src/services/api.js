@@ -1,5 +1,14 @@
-// Use relative URL in development if proxy is set, or explicit localhost
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Normalize API URL from environment variable (VITE_API_URL) with localhost fallback
+const getApiBaseUrl = () => {
+  const envUrl = (import.meta.env.VITE_API_URL || '').trim();
+  if (!envUrl) {
+    return 'http://localhost:5000/api';
+  }
+  const cleanUrl = envUrl.replace(/\/+$/, '');
+  return cleanUrl.endsWith('/api') ? cleanUrl : `${cleanUrl}/api`;
+};
+
+export const API_BASE = getApiBaseUrl();
 
 const getAuthHeaders = () => {
   const headers = { 'Content-Type': 'application/json' };
@@ -158,4 +167,37 @@ export const previewDoctorTranslation = async (text, targetLang) => {
   const json = await res.json();
   return json.translatedText || '';
 };
+
+// --- Health Worker APIs ---
+export const getHealthWorkerOverview = async () => {
+  const res = await fetch(`${API_BASE}/health-worker/overview`);
+  return res.json();
+};
+
+export const getHealthWorkerPatients = async () => {
+  const res = await fetch(`${API_BASE}/health-worker/patients`);
+  return res.json();
+};
+
+// --- Documents APIs ---
+export const getPatientDocuments = async (patientId) => {
+  const res = await fetch(`${API_BASE}/documents/patient/${patientId}`);
+  return res.json();
+};
+
+export const uploadMedicalDocument = async (docData) => {
+  const res = await fetch(`${API_BASE}/documents`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(docData)
+  });
+  return res.json();
+};
+
+// --- Facilities APIs ---
+export const getHealthcareFacilities = async () => {
+  const res = await fetch(`${API_BASE}/facilities`);
+  return res.json();
+};
+
 
