@@ -40,11 +40,17 @@ export const extractInformation = (transcript, currentField = null) => {
   }
 
   // 3. Gender extraction
-  if (/male|मेल|purush|आदमी|पुरुष|पुरूष|પુરુષ|పురుషుడు|boy|man|लड़का|मुलगा/i.test(lowerTranscript)) {
-    extracted.gender = 'Male';
-  } else if (/female|फीमेल|mahila|aurat|महिला|स्त्री|સ્ત્રી|మహిళ|girl|woman|लड़की|मुलगी|औरत/i.test(lowerTranscript)) {
+  // IMPORTANT: Check Female BEFORE Male, and use word boundaries (\b) for English keywords 
+  // so that "female" never matches "male" and "woman" never matches "man".
+  const femaleRegex = /\b(female|females|fe\s*male|woman|women|girl|girls)\b|फीमेल|महिला|स्त्री|स्त्रीलिंग|औरत|लड़की|लडकी|मुलगी|સ્ત્રી|મહિલા|మహిళ|స్త్రీ|mahila|aurat|ladki|mulgi|stree|stri|mada/i;
+  const maleRegex = /\b(male|males|man|men|boy|boys|gentleman)\b|मेल|पुरुष|पुरूष|पुल्लिंग|आदमी|लड़का|लडका|मुलगा|પુરુષ|పురుషుడు|purush|aadmi|ladka|mulga|nar/i;
+  const otherRegex = /\b(other|others|third\s*gender|transgender)\b|अन्य|અન્ય|ఇతర|इतर|anya/i;
+
+  if (femaleRegex.test(lowerTranscript)) {
     extracted.gender = 'Female';
-  } else if (/other|anya|અન્ય|ఇతర|इतर|अन्य/i.test(lowerTranscript)) {
+  } else if (maleRegex.test(lowerTranscript)) {
+    extracted.gender = 'Male';
+  } else if (otherRegex.test(lowerTranscript)) {
     extracted.gender = 'Other';
   }
 

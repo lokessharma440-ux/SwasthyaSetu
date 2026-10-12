@@ -206,7 +206,10 @@ const Register = () => {
       setAppState('CONFIRMING');
       setVoiceState('idle');
       
-      const msg = getPrompt(language, `${currentField}.confirm`, { val });
+      const displayVal = currentField === 'gender'
+        ? (val === 'Male' ? t('gender_male') : val === 'Female' ? t('gender_female') : val === 'Other' ? t('gender_other') : val)
+        : val;
+      const msg = getPrompt(language, `${currentField}.confirm`, { val: displayVal });
       setSystemMessage(msg);
       await safeSpeak(msg);
     } else {
