@@ -30,7 +30,7 @@ const LANGUAGE_HEURISTICS = {
  */
 export const detectLanguageFromTranscript = (transcript) => {
   if (!transcript || transcript.trim() === '') return null;
-  
+
   for (const [langCode, regex] of Object.entries(LANGUAGE_HEURISTICS)) {
     if (regex.test(transcript)) {
       return {
@@ -40,7 +40,7 @@ export const detectLanguageFromTranscript = (transcript) => {
       };
     }
   }
-  
+
   return {
     language: 'unknown',
     confidence: 0,
@@ -60,15 +60,15 @@ export const playMultiLingualPrompt = () => {
     }
 
     window.speechSynthesis.cancel();
-    
+
     // We try to ask in Hindi and English as a basic prompt, 
     // simulating a multi-lingual system.
     const msg = new SpeechSynthesisUtterance("कृपया अपना नाम बताएं। Please say your name.");
     msg.rate = 0.9;
-    
+
     msg.onend = () => resolve();
     msg.onerror = () => resolve();
-    
+
     window.speechSynthesis.speak(msg);
   });
 };
