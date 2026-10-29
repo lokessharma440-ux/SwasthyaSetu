@@ -35,4 +35,9 @@ const patientSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// Explicit indexes for patient lookups and triage assignment
+patientSchema.index({ phone: 1 });
+patientSchema.index({ assignedDoctor: 1 });
+patientSchema.index({ createdAt: -1 });
+
 module.exports = mongoose.model('Patient', patientSchema);

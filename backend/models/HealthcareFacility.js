@@ -12,6 +12,10 @@ const healthcareFacilitySchema = new mongoose.Schema({
   longitude: { type: Number },
   services: [{ type: String }],
   isEmergencyAvailable: { type: Boolean, default: false }
-});
+}, { timestamps: true });
+
+// Explicit indexes for location and type filtering
+healthcareFacilitySchema.index({ district: 1, type: 1 });
+healthcareFacilitySchema.index({ name: 1 });
 
 module.exports = mongoose.model('HealthcareFacility', healthcareFacilitySchema);

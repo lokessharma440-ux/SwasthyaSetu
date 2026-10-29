@@ -14,4 +14,9 @@ const doctorSchema = new mongoose.Schema({
   role: { type: String, default: 'DOCTOR' }
 }, { timestamps: true });
 
+// Explicit indexes for doctor lookups and filtering
+doctorSchema.index({ doctorId: 1 });
+doctorSchema.index({ role: 1 });
+doctorSchema.index({ createdAt: -1 });
+
 module.exports = mongoose.model('Doctor', doctorSchema);

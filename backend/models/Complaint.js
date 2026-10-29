@@ -67,4 +67,9 @@ const complaintSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// Explicit indexes for triage queues and patient lookups
+complaintSchema.index({ patientId: 1, createdAt: -1 });
+complaintSchema.index({ doctorId: 1, status: 1 });
+complaintSchema.index({ status: 1, createdAt: -1 });
+
 module.exports = mongoose.model('Complaint', complaintSchema);

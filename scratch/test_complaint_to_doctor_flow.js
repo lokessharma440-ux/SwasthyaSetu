@@ -44,6 +44,7 @@ async function runTest() {
   console.log('Status code:', doctorQueueRes.status);
   console.log('Total Complaints in queue:', doctorQueueJson.count);
   
+  // Note: Array.prototype.find on parsed API JSON; Mongoose .lean() is applied to server-side queries
   const foundComplaint = doctorQueueJson.data?.find(c => c._id === complaintId);
   console.log('Spoken complaint found on Doctor Dashboard?:', !!foundComplaint);
   if (!foundComplaint) {

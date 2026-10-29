@@ -2,10 +2,47 @@ const mongoose = require('../backend/node_modules/mongoose');
 
 async function clean() {
   await mongoose.connect('mongodb://127.0.0.1:27017/swasthyasetu');
-  const Patient = mongoose.model('Patient', new mongoose.Schema({}, { strict: false }));
-  const Complaint = mongoose.model('Complaint', new mongoose.Schema({}, { strict: false }));
-  const Doctor = mongoose.model('Doctor', new mongoose.Schema({}, { strict: false }));
-  const DoctorResponse = mongoose.model('DoctorResponse', new mongoose.Schema({}, { strict: false }));
+  
+  const patientSchema = new mongoose.Schema({
+    name: { type: String, required: [true, 'Name is required'] },
+    phone: { 
+      type: String, 
+      validate: {
+        validator: (v) => !v || /^\d{10}$/.test(v),
+        message: 'Invalid phone'
+      }
+    },
+    location: { type: String, required: [true, 'Location is required'] },
+    assignedDoctor: { type: mongoose.Schema.Types.ObjectId, ref: 'Doctor' }
+  }, { strict: false, timestamps: true });
+  patientSchema.index({ phone: 1 });
+  patientSchema.index({ createdAt: -1 });
+
+  const complaintSchema = new mongoose.Schema({
+    patientId: { type: mongoose.Schema.Types.ObjectId, ref: 'Patient', required: [true, 'Patient ID required'] },
+    doctorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Doctor' },
+    problem: { type: String, required: [true, 'Problem required'] },
+    duration: { type: String, required: [true, 'Duration required'] },
+    status: { type: String, enum: ['READY_FOR_DOCTOR', 'UNDER_REVIEW', 'RESPONDED'], default: 'READY_FOR_DOCTOR' }
+  }, { strict: false, timestamps: true });
+  complaintSchema.index({ patientId: 1 });
+  complaintSchema.index({ status: 1 });
+
+  const doctorSchema = new mongoose.Schema({
+    doctorId: { type: String, required: [true, 'Doctor ID required'], unique: true },
+    name: { type: String, required: [true, 'Doctor name required'] }
+  }, { strict: false, timestamps: true });
+  doctorSchema.index({ doctorId: 1 });
+
+  const doctorResponseSchema = new mongoose.Schema({
+    complaintId: { type: mongoose.Schema.Types.ObjectId, ref: 'Complaint', required: [true, 'Complaint ID required'], unique: true }
+  }, { strict: false, timestamps: true });
+  doctorResponseSchema.index({ complaintId: 1 });
+
+  const Patient = mongoose.models.Patient || mongoose.model('Patient', patientSchema);
+  const Complaint = mongoose.models.Complaint || mongoose.model('Complaint', complaintSchema);
+  const Doctor = mongoose.models.Doctor || mongoose.model('Doctor', doctorSchema);
+  const DoctorResponse = mongoose.models.DoctorResponse || mongoose.model('DoctorResponse', doctorResponseSchema);
 
   // 1. Delete all fake Ramesh Patel patients
   await Patient.deleteMany({ name: /Ramesh Patel/i });

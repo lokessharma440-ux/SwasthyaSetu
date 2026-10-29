@@ -10,4 +10,8 @@ const medicalDocumentSchema = new mongoose.Schema({
   documentType: { type: String, enum: ['prescription', 'lab report', 'medical report', 'other'], default: 'other' },
 }, { timestamps: true });
 
+// Explicit indexes for patient locker retrieval
+medicalDocumentSchema.index({ patientId: 1, createdAt: -1 });
+medicalDocumentSchema.index({ complaintId: 1 });
+
 module.exports = mongoose.model('MedicalDocument', medicalDocumentSchema);

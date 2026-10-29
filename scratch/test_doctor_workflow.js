@@ -176,6 +176,7 @@ async function runTests() {
     const timelineRes = await fetchJson(`${API_BASE}/patients/${patient1._id}/timeline`);
     assert(timelineRes.ok, 'Patient timeline fetched successfully');
     const items = timelineRes.data.data.timeline;
+    // Note: Array.prototype.find on response payload; Mongoose .lean() is applied to server-side queries
     const authItem = items.find(i => i.type === 'Doctor Advice (Authorized)');
     assert(!!authItem, 'Timeline includes Doctor Advice (Authorized)');
 

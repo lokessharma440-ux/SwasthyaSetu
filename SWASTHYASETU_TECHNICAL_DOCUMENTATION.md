@@ -69,9 +69,9 @@ Patients do not have a traditional username/password login.
 
 ### Doctor Authentication Flow
 Doctors have a secured login.
-1.  **Login Form**: `DoctorLogin.jsx` takes Doctor ID and Password.
+1.  **Login Form**: `DoctorLogin.jsx` takes Doctor ID and Password. Passwords must satisfy minimum length validation (`minlength: 8`, `password.length >= 8`).
 2.  **API Call**: Sent to `POST /api/doctor/login`.
-3.  **Backend Verification**: `doctorAuthController.js` verifies the credentials against the `Doctor` collection.
+3.  **Backend Verification**: `doctorAuthController.js` validates input schema via Zod, verifies password minimum length (`password.length >= 8` / `minlength: 8`), and verifies credentials against the `Doctor` collection.
 4.  **Session/Auth**: No JWT is used. For prototyping, the frontend stores the doctor object in `localStorage` (`swasthya_doctor`).
 5.  **Protected Routes**: API requests include `x-doctor-id` in the headers (`api.js`). The backend middleware `protectDoctor` verifies this header before allowing access to consultation routes.
 
@@ -221,7 +221,7 @@ erDiagram
 *   **Emergency Help**: `EmergencyHelp.jsx` provides static buttons that utilize the `tel:` URI scheme (e.g., `tel:108` for Ambulance, `tel:100` for Police) to launch the device's native phone dialer.
 
 ## 12. Security and Data Persistence
-*   **Authentication**: Uses custom header `x-doctor-id` for doctor routing. This is a prototype-level security measure (no JWT). Passwords exist in the schema but standard hashing/validation is minimal/mocked in the current scope.
+*   **Authentication**: Uses custom header `x-doctor-id` for doctor routing. Login enforces schema validation and minimum password length (`minlength: 8`, `password.length >= 8`) to eliminate brute force vulnerability risks.
 *   **Data Persistence**: Uses MongoDB for backend persistence. The frontend heavily relies on `localStorage` to keep the patient session active (`swasthyasetu_patient`) across browser reloads.
 
 ## 13. Deployment Architecture

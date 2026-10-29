@@ -1,4 +1,9 @@
+const { z } = require('zod');
 const HealthcareFacility = require('../models/HealthcareFacility');
+
+const facilityParamSchema = z.object({
+  id: z.string().min(1, 'Facility ID is required')
+});
 
 // Basic mock data to seed if DB is empty
 const mockFacilities = [
@@ -47,11 +52,12 @@ const mockFacilities = [
 // @route   GET /api/facilities
 exports.getFacilities = async (req, res, next) => {
   try {
-    let facilities = await HealthcareFacility.find({});
+    let facilities = await HealthcareFacility.find({}).lean();
     
     // Seed mock data if empty (prototype behavior)
     if (facilities.length === 0) {
-      facilities = await HealthcareFacility.insertMany(mockFacilities);
+      const inserted = await HealthcareFacility.insertMany(mockFacilities);
+      facilities = inserted.map(f => (f.toObject ? f.toObject() : f));
     }
     
     res.status(200).json({ success: true, count: facilities.length, data: facilities });
@@ -64,7 +70,16 @@ exports.getFacilities = async (req, res, next) => {
 // @route   GET /api/facilities/:id
 exports.getFacility = async (req, res, next) => {
   try {
-    const facility = await HealthcareFacility.findById(req.params.id);
+    const parseResult = facilityParamSchema.safeParse(req.params);
+    if (!parseResult.success) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid facility ID parameter',
+        errors: parseResult.error.issues
+      });
+    }
+
+    const facility = await HealthcareFacility.findById(parseResult.data.id).lean();
     if (!facility) {
       return res.status(404).json({ success: false, message: 'Facility not found' });
     }

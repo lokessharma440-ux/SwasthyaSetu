@@ -1,3 +1,4 @@
+const { z } = require('zod');
 const Complaint = require('../models/Complaint');
 const Patient = require('../models/Patient');
 const Doctor = require('../models/Doctor');
@@ -7,10 +8,42 @@ const { assignDoctorToPatient, getDemoDoctor } = require('../utils/doctorAssignm
 const { generateSafeDemoResponse } = require('../utils/demoResponseGenerator');
 const { translateComplaintToEnglish, translateDoctorResponseToPatient } = require('../utils/translationService');
 
+// Zod schemas for input validation
+const createComplaintSchema = z.object({
+  patientId: z.string().optional(),
+  originalStatement: z.string().optional(),
+  problem: z.string().optional(),
+  duration: z.string().optional(),
+  additionalSymptoms: z.string().optional(),
+  inputMethod: z.enum(['voice', 'text']).optional(),
+  language: z.string().optional(),
+  phone: z.string().optional(),
+  name: z.string().optional(),
+  patientName: z.string().optional(),
+  patientAge: z.union([z.number(), z.string()]).optional(),
+  patientGender: z.string().optional(),
+  location: z.string().optional()
+});
+
+const updateComplaintSchema = z.object({
+  problem: z.string().optional(),
+  duration: z.string().optional(),
+  additionalSymptoms: z.string().optional()
+});
+
 // @desc    Create complaint
 // @route   POST /api/complaints
 exports.createComplaint = async (req, res, next) => {
   try {
+    const parseResult = createComplaintSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid complaint payload',
+        errors: parseResult.error.issues 
+      });
+    }
+
     const { patientId, originalStatement, problem, duration, additionalSymptoms, inputMethod, language } = req.body;
     
     // Check if patient exists in MongoDB
@@ -134,7 +167,8 @@ exports.createComplaint = async (req, res, next) => {
 
     const populatedComplaint = await Complaint.findById(complaint._id)
       .populate('patientId', 'name age gender location phone')
-      .populate('doctorId', 'name doctorId specialization department profileStatus consultationMode');
+      .populate('doctorId', 'name doctorId specialization department profileStatus consultationMode')
+      .lean();
 
     res.status(201).json({ 
       success: true, 
@@ -152,7 +186,8 @@ exports.getPatientComplaints = async (req, res, next) => {
   try {
     const complaints = await Complaint.find({ patientId: req.params.patientId })
       .sort('-createdAt')
-      .populate('doctorId', 'name doctorId specialization department profileStatus');
+      .populate('doctorId', 'name doctorId specialization department profileStatus')
+      .lean();
     res.status(200).json({ success: true, count: complaints.length, data: complaints });
   } catch (error) {
     next(error);
@@ -165,7 +200,8 @@ exports.getComplaint = async (req, res, next) => {
   try {
     const complaint = await Complaint.findById(req.params.id)
       .populate('patientId', 'name age gender location phone')
-      .populate('doctorId', 'name doctorId specialization department profileStatus consultationMode');
+      .populate('doctorId', 'name doctorId specialization department profileStatus consultationMode')
+      .lean();
     if (!complaint) {
       return res.status(404).json({ success: false, message: 'Complaint not found' });
     }
@@ -179,8 +215,17 @@ exports.getComplaint = async (req, res, next) => {
 // @route   PUT /api/complaints/:id
 exports.updateComplaint = async (req, res, next) => {
   try {
+    const parseResult = updateComplaintSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid complaint update payload',
+        errors: parseResult.error.issues 
+      });
+    }
+
     // Only allow updating specific fields from frontend (exclude status updates for now)
-    const { problem, duration, additionalSymptoms } = req.body;
+    const { problem, duration, additionalSymptoms } = parseResult.data;
     
     const complaint = await Complaint.findByIdAndUpdate(req.params.id, {
       problem,
@@ -189,7 +234,7 @@ exports.updateComplaint = async (req, res, next) => {
     }, {
       new: true,
       runValidators: true
-    });
+    }).lean();
 
     if (!complaint) {
       return res.status(404).json({ success: false, message: 'Complaint not found' });

@@ -170,10 +170,11 @@ backend/
 1. **Dynamic CORS (`corsOptions`)**: Supports environment-driven origins (`process.env.FRONTEND_URL`), wildcard Vercel deployment URLs (`*.vercel.app`), and local development environments (`localhost`).
 2. **Body Parser**: Handles standard JSON payloads via `express.json()`.
 3. **Doctor Authentication Guard (`protectDoctor`)**: Extracts the `x-doctor-id` header to associate clinical actions with active doctor accounts.
-4. **Health Check & Diagnostics**:
+4. **Credential & Password Validation**: Enforces minimum password length validation (`minlength: 8`, `password.length >= 8`) on `/api/doctor/login` and schema level to prevent weak credential vulnerabilities.
+5. **Health Check & Diagnostics**:
    - `GET /`: Returns API operational status and version.
    - `GET /api/health`: Provides real-time MongoDB connectivity status (`connected` vs `disconnected`) and timestamp.
-5. **Centralized Error Handler**: Formats Mongoose `ValidationError` and `CastError` into clean user-facing responses while suppressing stack traces in production (`NODE_ENV === 'production'`).
+6. **Centralized Error Handler**: Formats Mongoose `ValidationError` and `CastError` into clean user-facing responses while suppressing stack traces in production (`NODE_ENV === 'production'`).
 
 ---
 
@@ -254,7 +255,7 @@ erDiagram
         ObjectId _id PK
         String doctorId UK
         String name
-        String passwordHash
+        String passwordHash "minlength 8"
         String specialization
         String department
         String[] assignedVillages

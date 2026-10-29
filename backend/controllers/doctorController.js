@@ -1,3 +1,4 @@
+const { z } = require('zod');
 const Complaint = require('../models/Complaint');
 const DoctorResponse = require('../models/DoctorResponse');
 const Patient = require('../models/Patient');
@@ -5,6 +6,36 @@ const Doctor = require('../models/Doctor');
 const { logActivity } = require('../utils/logger');
 const { getDemoDoctor } = require('../utils/doctorAssignment');
 const { translateDoctorResponseToPatient, translateText } = require('../utils/translationService');
+
+// Zod schemas for input validation
+const createResponseSchema = z.object({
+  complaintId: z.string().optional(),
+  patientId: z.string().optional(),
+  guidance: z.string().min(1, 'Clinical guidance is required'),
+  precautions: z.string().optional(),
+  medicines: z.string().optional(),
+  followUp: z.object({
+    date: z.string().nullable().optional(),
+    note: z.string().optional(),
+    status: z.string().optional()
+  }).optional()
+});
+
+const updateResponseSchema = z.object({
+  guidance: z.string().optional(),
+  precautions: z.string().optional(),
+  medicines: z.string().optional(),
+  followUp: z.object({
+    date: z.string().nullable().optional(),
+    note: z.string().optional(),
+    status: z.string().optional()
+  }).optional()
+});
+
+const previewTranslationSchema = z.object({
+  text: z.string().optional(),
+  targetLang: z.string().optional()
+});
 
 // Helper to resolve doctor Mongo ObjectId
 const resolveDoctorId = async (reqDoctorId) => {
@@ -45,7 +76,8 @@ exports.getAllComplaints = async (req, res, next) => {
     let complaints = await Complaint.find(query)
       .sort(sortOption)
       .populate('patientId', 'name age gender location phone')
-      .populate('doctorId', 'name doctorId specialization department profileStatus');
+      .populate('doctorId', 'name doctorId specialization department profileStatus')
+      .lean();
     
     // Support basic search by patient name, phone, or location
     if (search) {
@@ -87,14 +119,16 @@ exports.getDoctorStats = async (req, res, next) => {
       .sort('-createdAt')
       .limit(10)
       .populate('patientId', 'name age gender location phone')
-      .populate('doctorId', 'name doctorId specialization department');
+      .populate('doctorId', 'name doctorId specialization department')
+      .lean();
 
     // 4. Recent response activity
     const recentResponses = await DoctorResponse.find()
       .sort('-createdAt')
       .limit(10)
       .populate('patientId', 'name age gender location')
-      .populate('complaintId', 'problem duration status');
+      .populate('complaintId', 'problem duration status')
+      .lean();
 
     res.status(200).json({
       success: true,
@@ -124,12 +158,12 @@ exports.getDoctorPatients = async (req, res, next) => {
         { assignedDoctor: null },
         { assignedDoctor: { $exists: false } }
       ]
-    }).sort('-createdAt');
+    }).sort('-createdAt').lean();
 
     // Attach complaint counts and last complaint info for each patient
     const patientRecords = await Promise.all(patients.map(async (p) => {
       const complaintCount = await Complaint.countDocuments({ patientId: p._id });
-      const lastComplaint = await Complaint.findOne({ patientId: p._id }).sort('-createdAt');
+      const lastComplaint = await Complaint.findOne({ patientId: p._id }).sort('-createdAt').lean();
       return {
         _id: p._id,
         name: p.name,
@@ -155,7 +189,7 @@ exports.getDoctorPatients = async (req, res, next) => {
 exports.getDoctorProfile = async (req, res, next) => {
   try {
     const doctorObjId = await resolveDoctorId(req.doctorId);
-    const doctor = await Doctor.findById(doctorObjId);
+    const doctor = await Doctor.findById(doctorObjId).lean();
     if (!doctor) {
       return res.status(404).json({ success: false, message: 'Doctor not found' });
     }
@@ -212,12 +246,17 @@ exports.markComplaintUnderReview = async (req, res, next) => {
 // @route   POST /api/doctor/responses
 exports.createResponse = async (req, res, next) => {
   try {
-    const complaintId = req.params.id || req.body.complaintId;
-    const { patientId, guidance, precautions, medicines, followUp } = req.body;
-
-    if (!guidance || !guidance.trim()) {
-      return res.status(400).json({ success: false, message: 'Clinical guidance is required' });
+    const parseResult = createResponseSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({
+        success: false,
+        message: parseResult.error.issues[0]?.message || 'Invalid response data',
+        errors: parseResult.error.issues
+      });
     }
+
+    const complaintId = req.params.id || parseResult.data.complaintId;
+    const { patientId, guidance, precautions, medicines, followUp } = parseResult.data;
 
     const complaint = await Complaint.findById(complaintId);
     if (!complaint) {
@@ -313,7 +352,8 @@ exports.createResponse = async (req, res, next) => {
 exports.getResponseByComplaint = async (req, res, next) => {
   try {
     const response = await DoctorResponse.findOne({ complaintId: req.params.complaintId })
-      .populate('doctorId', 'name doctorId specialization department profileStatus');
+      .populate('doctorId', 'name doctorId specialization department profileStatus')
+      .lean();
     res.status(200).json({ success: true, response: response || null });
   } catch (error) {
     next(error);
@@ -324,7 +364,16 @@ exports.getResponseByComplaint = async (req, res, next) => {
 // @route   PUT /api/doctor/responses/:id
 exports.updateResponse = async (req, res, next) => {
   try {
-    const { guidance, precautions, medicines, followUp } = req.body;
+    const parseResult = updateResponseSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid update payload',
+        errors: parseResult.error.issues
+      });
+    }
+
+    const { guidance, precautions, medicines, followUp } = parseResult.data;
     const existing = await DoctorResponse.findById(req.params.id);
     if (!existing) {
       return res.status(404).json({ success: false, message: 'Response not found.' });
@@ -378,7 +427,9 @@ exports.updateResponse = async (req, res, next) => {
 // @route   POST /api/doctor/translate-preview
 exports.previewTranslation = async (req, res, next) => {
   try {
-    const { text, targetLang } = req.body;
+    const parseResult = previewTranslationSchema.safeParse(req.body);
+    const text = parseResult.success ? parseResult.data.text : req.body.text;
+    const targetLang = parseResult.success ? parseResult.data.targetLang : req.body.targetLang;
     if (!text || !text.trim()) {
       return res.status(200).json({ success: true, translatedText: '' });
     }

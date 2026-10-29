@@ -1,3 +1,4 @@
+const { z } = require('zod');
 const Patient = require('../models/Patient');
 const Complaint = require('../models/Complaint');
 const { logActivity } = require('../utils/logger');
@@ -5,18 +6,47 @@ const MedicalDocument = require('../models/MedicalDocument');
 const DoctorResponse = require('../models/DoctorResponse');
 const { assignDoctorToPatient, getDemoDoctor } = require('../utils/doctorAssignment');
 
+// Zod schemas for patient operations
+const createPatientSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  age: z.union([z.number(), z.string()]).optional(),
+  gender: z.string().optional(),
+  location: z.string().min(1, 'Location is required'),
+  phone: z.string().optional()
+});
+
+const updatePatientSchema = z.object({
+  name: z.string().optional(),
+  age: z.union([z.number(), z.string()]).optional(),
+  gender: z.string().optional(),
+  location: z.string().optional(),
+  phone: z.string().optional(),
+  assignedDoctor: z.string().optional()
+});
+
 // @desc    Create new patient
 // @route   POST /api/patients
 exports.createPatient = async (req, res, next) => {
   try {
-    const { name, age, gender, location, phone } = req.body;
+    const parseResult = createPatientSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid patient data',
+        errors: parseResult.error.issues
+      });
+    }
+
+    const { name, age, gender, location, phone } = parseResult.data;
     let patient = await Patient.create({ name, age, gender, location, phone });
     
     // Automatically assign DOC-DEMO-001 on backend
     await assignDoctorToPatient(patient);
     
     // Reload populated patient
-    patient = await Patient.findById(patient._id).populate('assignedDoctor', 'name doctorId specialization department availability profileStatus consultationMode');
+    patient = await Patient.findById(patient._id)
+      .populate('assignedDoctor', 'name doctorId specialization department availability profileStatus consultationMode')
+      .lean();
     
     await logActivity({
       action: 'patient_registered',
@@ -46,7 +76,9 @@ exports.getPatient = async (req, res, next) => {
       await assignDoctorToPatient(patient);
     }
 
-    patient = await Patient.findById(req.params.id).populate('assignedDoctor', 'name doctorId specialization department availability profileStatus consultationMode');
+    patient = await Patient.findById(req.params.id)
+      .populate('assignedDoctor', 'name doctorId specialization department availability profileStatus consultationMode')
+      .lean();
 
     res.status(200).json({ success: true, data: patient });
   } catch (error) {
@@ -58,10 +90,20 @@ exports.getPatient = async (req, res, next) => {
 // @route   PUT /api/patients/:id
 exports.updatePatient = async (req, res, next) => {
   try {
-    const patient = await Patient.findByIdAndUpdate(req.params.id, req.body, {
+    const parseResult = updatePatientSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid patient update data',
+        errors: parseResult.error.issues
+      });
+    }
+
+    const patient = await Patient.findByIdAndUpdate(req.params.id, parseResult.data, {
       new: true,
       runValidators: true
-    });
+    }).lean();
+
     if (!patient) {
       return res.status(404).json({ success: false, message: 'Patient not found' });
     }
@@ -75,14 +117,14 @@ exports.updatePatient = async (req, res, next) => {
 // @route   GET /api/patients/:patientId/timeline
 exports.getTimeline = async (req, res, next) => {
   try {
-    const patient = await Patient.findById(req.params.patientId);
+    const patient = await Patient.findById(req.params.patientId).lean();
     if (!patient) {
       return res.status(404).json({ success: false, message: 'Patient not found' });
     }
 
-    const complaints = await Complaint.find({ patientId: req.params.patientId }).sort('-createdAt').populate('doctorId');
-    const responses = await DoctorResponse.find({ patientId: req.params.patientId }).sort('-createdAt');
-    const documents = await MedicalDocument.find({ patientId: req.params.patientId }).sort('-createdAt');
+    const complaints = await Complaint.find({ patientId: req.params.patientId }).sort('-createdAt').populate('doctorId').lean();
+    const responses = await DoctorResponse.find({ patientId: req.params.patientId }).sort('-createdAt').lean();
+    const documents = await MedicalDocument.find({ patientId: req.params.patientId }).sort('-createdAt').lean();
     
     // Map to a combined timeline
     let timeline = [];
@@ -109,7 +151,7 @@ exports.getTimeline = async (req, res, next) => {
         timeline.push({
           type: 'Doctor Assigned',
           date: new Date(complaint.createdAt).getTime() + 1000, // 1 sec after
-          description: `Dr. ${complaint.doctorId.name.replace('Dr. ', '')} Assigned`,
+          description: `Dr. ${complaint.doctorId.name ? complaint.doctorId.name.replace('Dr. ', '') : 'Demo'} Assigned`,
           status: 'viewed',
           data: complaint
         });
@@ -180,14 +222,14 @@ exports.getTimeline = async (req, res, next) => {
 // @route   GET /api/patients/:patientId/doctor
 exports.getAssignedDoctor = async (req, res, next) => {
   try {
-    const patient = await Patient.findById(req.params.patientId);
+    const patient = await Patient.findById(req.params.patientId).lean();
     if (!patient) {
       return res.status(404).json({ success: false, message: 'Patient not found' });
     }
 
     let doctor = null;
     if (patient.assignedDoctor) {
-      doctor = await require('../models/Doctor').findById(patient.assignedDoctor);
+      doctor = await require('../models/Doctor').findById(patient.assignedDoctor).lean();
     }
 
     if (!doctor) {

@@ -59,6 +59,7 @@ const useSpeechSynthesis = () => {
   }, []);
 
   // Multi-tier voice finder specifically tailored for laptops & Indian dialects
+  // Note: voices.find() operates on standard JS Array, Mongoose .lean() is not applicable in frontend hooks.
   const findVoiceForLanguage = useCallback((targetLang) => {
     const voices = getAvailableVoices();
     if (!voices || voices.length === 0) return null;

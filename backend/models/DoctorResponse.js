@@ -59,4 +59,9 @@ const doctorResponseSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// Explicit indexes for response retrieval and patient timeline
+doctorResponseSchema.index({ complaintId: 1 });
+doctorResponseSchema.index({ patientId: 1, createdAt: -1 });
+doctorResponseSchema.index({ doctorId: 1, createdAt: -1 });
+
 module.exports = mongoose.model('DoctorResponse', doctorResponseSchema);
