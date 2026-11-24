@@ -32,23 +32,44 @@ const Welcome = () => {
 
     recognition.continuous = false;
     recognition.interimResults = false;
+    // Set locale to Indian English/Regional acoustic model so Chrome accurately transcribes both English and Indian language names
+    recognition.lang = navigator.language || 'en-IN';
 
     return recognition;
   };
 
   const handleVoiceInteraction = () => {
+    if (isListening && recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (e) {
+        console.error(e);
+      }
+      setIsListening(false);
+      return;
+    }
+
+    // Cancel any ongoing speech synthesis
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+
     setDetectionError(false);
     setShowLanguagePicker(false);
 
     const recognition = initSpeechRecognition();
     if (!recognition) return;
+    recognitionRef.current = recognition;
 
     recognition.onstart = () => {
       setIsListening(true);
     };
 
     recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
+      const transcript = Array.from(event.results)
+        .map(r => r[0]?.transcript || '')
+        .join(' ')
+        .trim();
       const detected = detectLanguageFromTranscript(transcript);
 
       if (detected && detected.confidence > 0.5 && detected.language !== 'unknown') {
@@ -60,7 +81,7 @@ const Welcome = () => {
           navigate('/patient/register');
         }
       } else {
-        // Low confidence
+        // Low confidence fallback
         setDetectionError(true);
         setShowLanguagePicker(true);
       }
@@ -68,12 +89,12 @@ const Welcome = () => {
 
     recognition.onerror = (event) => {
       if (event.error === 'no-speech') {
-        // Ask to repeat
         setDetectionError(true);
       } else {
         setDetectionError(true);
         setShowLanguagePicker(true);
       }
+      setIsListening(false);
     };
 
     recognition.onend = () => {
@@ -153,25 +174,34 @@ const Welcome = () => {
         />
       </div>
 
-      {/* Feedback State (Language neutral icons if possible) */}
-      {detectionError && !showLanguagePicker && (
-        <div className="mb-6 flex flex-col items-center text-orange-500 animate-pulse">
-          <AlertCircle className="w-10 h-10 mb-2" />
-          <span className="text-sm font-semibold">?</span>
-        </div>
-      )}
+      {/* Visual Instruction & Feedback State */}
+      <div className="mb-4 text-center z-10 max-w-sm px-4">
+        <p className="text-white text-base sm:text-lg font-bold drop-shadow-md">
+          {isListening
+            ? "सुन रहे हैं... कृपया अपनी भाषा बोलें"
+            : detectionError
+            ? "भाषा समझ नहीं आई, नीचे चुनें या दोबारा बोलें"
+            : "अपनी भाषा बोलें / Speak your language"}
+        </p>
+        <p className="text-white/85 text-xs sm:text-sm font-medium mt-1 drop-shadow-sm">
+          {isListening
+            ? "Listening... Say your preferred language"
+            : "हिन्दी • English • मराठी • ગુજરાતી • తెలుగు"}
+        </p>
+      </div>
 
       {/* Primary Voice Interaction */}
       <div className="flex flex-col items-center relative z-10">
-
         {/* Visual Arrow Pointing to Mic */}
-        <div className="mb-4 animate-bounce text-gray-300">
-          <ArrowUp className="w-10 h-10" />
-        </div>
+        {!isListening && (
+          <div className="mb-3 animate-bounce text-white/70">
+            <ArrowUp className="w-8 h-8" />
+          </div>
+        )}
 
         <button
           onClick={handleVoiceInteraction}
-          className={`relative flex items-center justify-center w-40 h-40 rounded-full shadow-2xl transition-all duration-300 ${isListening
+          className={`relative flex items-center justify-center w-36 h-36 sm:w-40 sm:h-40 rounded-full shadow-2xl transition-all duration-300 ${isListening
             ? 'bg-red-500 scale-110 shadow-red-500/50'
             : 'bg-primary hover:bg-primary-dark hover:scale-105 shadow-primary/40'
             }`}
@@ -182,7 +212,7 @@ const Welcome = () => {
             <div className="absolute inset-0 rounded-full bg-red-400 animate-ping opacity-75"></div>
           )}
 
-          <Mic className={`w-20 h-20 relative z-10 ${isListening ? 'text-white' : 'text-white'}`} />
+          <Mic className={`w-16 h-16 sm:w-20 sm:h-20 relative z-10 ${isListening ? 'text-white' : 'text-white'}`} />
         </button>
       </div>
 
