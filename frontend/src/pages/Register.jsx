@@ -212,7 +212,12 @@ const Register = () => {
         : val;
       const msg = getPrompt(language, `${currentField}.confirm`, { val: displayVal });
       setSystemMessage(msg);
-      await safeSpeak(msg);
+
+      // For phone numbers, space out the digits for speech synthesis so TTS pronounces
+      // each digit clearly (e.g. "9 8 7...") instead of reading as "nine billion..."
+      const spokenVal = currentField === 'phone' ? val.split('').join(' ') : displayVal;
+      const spokenMsg = getPrompt(language, `${currentField}.confirm`, { val: spokenVal });
+      await safeSpeak(spokenMsg);
     } else {
       handleUnclear();
     }
