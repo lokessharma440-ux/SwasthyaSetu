@@ -5,6 +5,7 @@ import { detectLanguageFromTranscript, SUPPORTED_LANGUAGES } from '../src/servic
 test('Direct language name detection across languages', () => {
   // Hindi
   assert.strictEqual(detectLanguageFromTranscript('Hindi')?.language, 'hi-IN');
+  assert.strictEqual(detectLanguageFromTranscript('hindi')?.language, 'hi-IN');
   assert.strictEqual(detectLanguageFromTranscript('हिंदी')?.language, 'hi-IN');
   assert.strictEqual(detectLanguageFromTranscript('हिन्दी में')?.language, 'hi-IN');
 
@@ -14,18 +15,22 @@ test('Direct language name detection across languages', () => {
   assert.strictEqual(detectLanguageFromTranscript('अंग्रेजी')?.language, 'en-US');
   assert.strictEqual(detectLanguageFromTranscript('इंग्लिश')?.language, 'en-US');
 
-  // Marathi
+  // Marathi (Critical: must NOT be detected as en-US!)
   assert.strictEqual(detectLanguageFromTranscript('Marathi')?.language, 'mr-IN');
+  assert.strictEqual(detectLanguageFromTranscript('marathi')?.language, 'mr-IN');
+  assert.strictEqual(detectLanguageFromTranscript('marati')?.language, 'mr-IN');
   assert.strictEqual(detectLanguageFromTranscript('मराठी')?.language, 'mr-IN');
   assert.strictEqual(detectLanguageFromTranscript('मराठी मध्ये')?.language, 'mr-IN');
 
   // Gujarati
   assert.strictEqual(detectLanguageFromTranscript('Gujarati')?.language, 'gu-IN');
+  assert.strictEqual(detectLanguageFromTranscript('gujarati')?.language, 'gu-IN');
   assert.strictEqual(detectLanguageFromTranscript('ગુજરાતી')?.language, 'gu-IN');
   assert.strictEqual(detectLanguageFromTranscript('गुजराती')?.language, 'gu-IN');
 
   // Telugu
   assert.strictEqual(detectLanguageFromTranscript('Telugu')?.language, 'te-IN');
+  assert.strictEqual(detectLanguageFromTranscript('telugu')?.language, 'te-IN');
   assert.strictEqual(detectLanguageFromTranscript('తెలుగు')?.language, 'te-IN');
   assert.strictEqual(detectLanguageFromTranscript('तेलुगु')?.language, 'te-IN');
 });
@@ -34,10 +39,14 @@ test('Script and conversational phrase detection', () => {
   // Hindi phrase
   assert.strictEqual(detectLanguageFromTranscript('मेरा नाम लोकेश है')?.language, 'hi-IN');
   assert.strictEqual(detectLanguageFromTranscript('मुझे बुखार है')?.language, 'hi-IN');
+  assert.strictEqual(detectLanguageFromTranscript('mera naam Lokesh hai')?.language, 'hi-IN');
+  assert.strictEqual(detectLanguageFromTranscript('mera name Lokesh')?.language, 'hi-IN');
 
   // Marathi phrase in Devanagari (distinguished from Hindi)
   assert.strictEqual(detectLanguageFromTranscript('माझे नाव लोकेश आहे')?.language, 'mr-IN');
   assert.strictEqual(detectLanguageFromTranscript('मला ताप आला आहे')?.language, 'mr-IN');
+  assert.strictEqual(detectLanguageFromTranscript('majhe naav Lokesh aahe')?.language, 'mr-IN');
+  assert.strictEqual(detectLanguageFromTranscript('mala tap ahe')?.language, 'mr-IN');
 
   // Gujarati script
   assert.strictEqual(detectLanguageFromTranscript('મારું નામ લોકેશ છે')?.language, 'gu-IN');
@@ -58,11 +67,14 @@ test('Romanized greetings and phrases', () => {
   assert.strictEqual(detectLanguageFromTranscript('majhe naav aahe')?.language, 'mr-IN');
 });
 
-test('Empty or invalid input handling', () => {
-  assert.strictEqual(detectLanguageFromTranscript(''), null);
-  assert.strictEqual(detectLanguageFromTranscript('   '), null);
+test('Unrecognized or random Latin text must return unknown, NEVER en-US', () => {
+  assert.strictEqual(detectLanguageFromTranscript('')?.language, undefined);
+  assert.strictEqual(detectLanguageFromTranscript('   ')?.language, undefined);
   assert.strictEqual(detectLanguageFromTranscript(null), null);
   assert.strictEqual(detectLanguageFromTranscript('12345')?.language, 'unknown');
+  // CRITICAL TEST: Random Latin phonetic text from speech recognizer must NOT default to en-US!
+  assert.strictEqual(detectLanguageFromTranscript('xyz qwerty bla bla')?.language, 'unknown');
+  assert.strictEqual(detectLanguageFromTranscript('asdfghjk')?.language, 'unknown');
 });
 
 test('Supported languages configuration integrity', () => {

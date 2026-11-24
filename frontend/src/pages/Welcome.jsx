@@ -32,8 +32,8 @@ const Welcome = () => {
 
     recognition.continuous = false;
     recognition.interimResults = false;
-    // Set locale to Indian English/Regional acoustic model so Chrome accurately transcribes both English and Indian language names
-    recognition.lang = navigator.language || 'en-IN';
+    // Use hi-IN as speech recognition locale so Chrome natively captures Devanagari (Hindi/Marathi) and recognizes English language names
+    recognition.lang = 'hi-IN';
 
     return recognition;
   };
@@ -174,21 +174,12 @@ const Welcome = () => {
         />
       </div>
 
-      {/* Visual Instruction & Feedback State */}
-      <div className="mb-4 text-center z-10 max-w-sm px-4">
-        <p className="text-white text-base sm:text-lg font-bold drop-shadow-md">
-          {isListening
-            ? "सुन रहे हैं... कृपया अपनी भाषा बोलें"
-            : detectionError
-            ? "भाषा समझ नहीं आई, नीचे चुनें या दोबारा बोलें"
-            : "अपनी भाषा बोलें / Speak your language"}
-        </p>
-        <p className="text-white/85 text-xs sm:text-sm font-medium mt-1 drop-shadow-sm">
-          {isListening
-            ? "Listening... Say your preferred language"
-            : "हिन्दी • English • मराठी • ગુજરાતી • తెలుగు"}
-        </p>
-      </div>
+      {/* Feedback State (Subtle icon only if detection failed) */}
+      {detectionError && !showLanguagePicker && (
+        <div className="mb-4 flex flex-col items-center text-orange-400 animate-pulse">
+          <AlertCircle className="w-8 h-8" />
+        </div>
+      )}
 
       {/* Primary Voice Interaction */}
       <div className="flex flex-col items-center relative z-10">
