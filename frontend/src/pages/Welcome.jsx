@@ -32,8 +32,8 @@ const Welcome = () => {
 
     recognition.continuous = false;
     recognition.interimResults = false;
-    // Use hi-IN as speech recognition locale so Chrome natively captures Devanagari (Hindi/Marathi) and recognizes English language names
-    recognition.lang = 'hi-IN';
+    // Use natural browser/Indian English locale so Chrome accurately captures "English", "Hindi", "Marathi", "Gujarati", and "Telugu"
+    recognition.lang = navigator.language || 'en-IN';
 
     return recognition;
   };

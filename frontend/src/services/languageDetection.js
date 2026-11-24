@@ -21,7 +21,7 @@ export const detectLanguageFromTranscript = (transcript) => {
   const lower = text.toLowerCase();
 
   // 1. Direct Language Name Keywords (Highest Priority)
-  // Check for explicit mention of language name in native script or English/phonetic spellings
+  // Check for explicit mention of language name in English, phonetic spellings, or native scripts
 
   // Marathi: मराठी, marathi, marati, marathe, maratha, maradhi, etc.
   if (/\b(marathi|marati|marathe|maratha|maradhi|marathi\s+madhe|marathi\s+bhasha|marathit)\b|मराठी/i.test(text)) {
@@ -43,8 +43,8 @@ export const detectLanguageFromTranscript = (transcript) => {
     return { language: 'te-IN', confidence: 1.0, source: 'voice' };
   }
 
-  // English: english, inglis, angrezi, angreji, etc.
-  if (/\b(english|inglis|angrezi|angreji|in\s+english|speak\s+english)\b|अंग्रेजी|अंग्रेज़ी|इंग्लिश/i.test(text)) {
+  // English: english, inglis, angrezi, angreji, in english, speak english, and Devanagari transliterations
+  if (/\b(english|inglis|angrezi|angreji|in\s+english|speak\s+english)\b|अंग्रेजी|अंग्रेज़ी|अंगरेजी|अँग्रेजी|अँग्रेज़ी|इंग्लिश|इंगलिश|इंगलिस|इंग्लीश|ऐंग्लिश/i.test(text)) {
     return { language: 'en-US', confidence: 1.0, source: 'voice' };
   }
 
@@ -70,7 +70,7 @@ export const detectLanguageFromTranscript = (transcript) => {
     return { language: 'hi-IN', confidence: 0.9, source: 'voice' };
   }
 
-  // 4. Romanized Conversational Keywords
+  // 4. Romanized Conversational Keywords for Indian Languages
   // Marathi Romanized
   if (/\b(majhe|mazhe|maza|maze|naav|nav|mala|aahe|ahe|nahi|nahin|kasa|kashi|kase|kay|aushadh|madat|dhanyavaad|namaskar|tap|pahije|zhale|bare|aamhi)\b/i.test(lower)) {
     return { language: 'mr-IN', confidence: 0.85, source: 'voice' };
@@ -86,18 +86,20 @@ export const detectLanguageFromTranscript = (transcript) => {
     return { language: 'te-IN', confidence: 0.85, source: 'voice' };
   }
 
-  // Hindi Romanized
-  if (/\b(mera|meri|mere|naam|name|mujhe|mujko|hai|hain|hoon|hu|kya|kaise|kaisa|tabiyat|bukhar|dawa|dawai|madad|dhanyawad|namaste|shukriya|theek|kripya|apna|apni|batao|bolo|chahiye|acha|achha|hum|humara)\b/i.test(lower)) {
+  // Hindi Romanized (Note: "name" is intentionally excluded here so "My name is" detects as English)
+  if (/\b(mera|meri|mere|naam|mujhe|mujko|hai|hain|hoon|hu|kya|kaise|kaisa|tabiyat|bukhar|dawa|dawai|madad|dhanyawad|namaste|shukriya|theek|kripya|apna|apni|batao|bolo|chahiye|acha|achha|hum|humara)\b/i.test(lower)) {
     return { language: 'hi-IN', confidence: 0.85, source: 'voice' };
   }
 
-  // English Conversational (Explicit English vocabulary only!)
-  if (/\b(hello|hi|hey|my\s+name|i\s+am|i'm|i\s+need|doctor|help|hospital|fever|pain|sick|medicine|please|yes|no|good\s+morning|good\s+evening|how\s+are\s+you|thank\s+you|speak\s+english)\b/i.test(lower)) {
+  // 5. English Conversational Vocabulary & Common English Grammar
+  const englishVocabulary = /\b(hello|hi|hey|english|doctor|help|hospital|fever|pain|sick|medicine|please|yes|no|good\s+morning|good\s+evening|how\s+are\s+you|thank\s+you|thanks|welcome|name|my\s+name|i\s+am|i'm|i\s+need|i\s+want|can\s+you|speak|talk|patient|problem|start|okay|ok)\b/i;
+  const englishGrammar = /\b(the|this|that|these|those|is|am|are|was|were|have|has|had|do|does|did|will|would|can|could|should|what|where|when|why|how|who|which|you|your|we|our|they|their)\b/i;
+
+  if (englishVocabulary.test(lower) || englishGrammar.test(lower)) {
     return { language: 'en-US', confidence: 0.85, source: 'voice' };
   }
 
-  // Never fall back to English for unrecognized Latin strings.
-  // Returning unknown allows Welcome.jsx to smoothly present the manual language picker.
+  // Unrecognized input
   return {
     language: 'unknown',
     confidence: 0,
