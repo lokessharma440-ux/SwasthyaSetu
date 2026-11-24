@@ -160,12 +160,13 @@ const Register = () => {
       return;
     }
 
-    // Filter AI prompt echo if captured
-    let finalTranscript = rawText.toLowerCase();
+    // Filter AI prompt echo if captured while preserving original casing for proper names
+    let finalTranscript = rawText;
     let cleanSystemMsg = systemMessage.toLowerCase().replace(/[^\w\s\u0900-\u097F\u0A80-\u0AFF\u0C00-\u0C7F]/g, '').trim();
     
-    if (cleanSystemMsg && cleanSystemMsg.length > 2 && finalTranscript.includes(cleanSystemMsg)) {
-      finalTranscript = finalTranscript.replace(cleanSystemMsg, '').trim();
+    if (cleanSystemMsg && cleanSystemMsg.length > 2 && finalTranscript.toLowerCase().includes(cleanSystemMsg)) {
+      const idx = finalTranscript.toLowerCase().indexOf(cleanSystemMsg);
+      finalTranscript = (finalTranscript.slice(0, idx) + finalTranscript.slice(idx + cleanSystemMsg.length)).trim();
     }
 
     if (finalTranscript.trim() === '') {

@@ -1,0 +1,83 @@
+import test from 'node:test';
+import assert from 'node:assert';
+import { extractInformation, validateField } from '../src/services/conversationEngine.js';
+
+test('Name extraction with Hindi conversational introductory phrases', () => {
+  const t1 = extractInformation('मेरा नाम लोकेश शर्मा है', 'name');
+  assert.strictEqual(t1.extracted.name, 'लोकेश शर्मा');
+
+  const t2 = extractInformation('मेरा नाम विकास है', 'name');
+  assert.strictEqual(t2.extracted.name, 'विकास', 'Must not strip "का" from Vikas');
+
+  const t3 = extractInformation('मेरा नाम आकाश है', 'name');
+  assert.strictEqual(t3.extracted.name, 'आकाश', 'Must not strip "का" from Akash');
+
+  const t4 = extractInformation('मेरा नाम दीपिका है', 'name');
+  assert.strictEqual(t4.extracted.name, 'दीपिका', 'Must not strip "का" from Deepika');
+
+  const t5 = extractInformation('मेरा नाम मनीष है', 'name');
+  assert.strictEqual(t5.extracted.name, 'मनीष');
+});
+
+test('Name extraction with English conversational phrases', () => {
+  const t1 = extractInformation('My name is Manish', 'name');
+  assert.strictEqual(t1.extracted.name, 'Manish', 'Must not strip "is" from Manish');
+
+  const t2 = extractInformation('My name is Vishal Kishore', 'name');
+  assert.strictEqual(t2.extracted.name, 'Vishal Kishore', 'Must not strip "is" from Vishal or Kishore');
+
+  const t3 = extractInformation('lokesh sharma', 'name');
+  assert.strictEqual(t3.extracted.name, 'Lokesh Sharma');
+});
+
+test('Location extraction with Devanagari variations and particles', () => {
+  const t1 = extractInformation('मेरा गाँव रामपुर है', 'location');
+  assert.strictEqual(t1.extracted.location, 'रामपुर', 'Supports candrabindu गाँव');
+
+  const t2 = extractInformation('मेरा गांव रामपुर है', 'location');
+  assert.strictEqual(t2.extracted.location, 'रामपुर', 'Supports bindi गांव');
+
+  const t3 = extractInformation('गाँव का नाम बिठूर है', 'location');
+  assert.strictEqual(t3.extracted.location, 'बिठूर');
+
+  const t4 = extractInformation('रामपुर से हूँ', 'location');
+  assert.strictEqual(t4.extracted.location, 'रामपुर');
+
+  const t5 = extractInformation('ग्राम रामपुर', 'location');
+  assert.strictEqual(t5.extracted.location, 'रामपुर');
+
+  const t6 = extractInformation('मऊ', 'location');
+  assert.strictEqual(t6.extracted.location, 'मऊ', 'Supports 2-letter locations');
+});
+
+test('Location extraction with English phrases', () => {
+  const t1 = extractInformation('I live in Kalyanpur', 'location');
+  assert.strictEqual(t1.extracted.location, 'Kalyanpur');
+
+  const t2 = extractInformation('rampur village', 'location');
+  assert.strictEqual(t2.extracted.location, 'Rampur');
+});
+
+test('Strict cross-field isolation prevents pollution', () => {
+  // When at location step, speaking village name MUST NOT set name
+  const t1 = extractInformation('रामपुर', 'location');
+  assert.strictEqual(t1.extracted.location, 'रामपुर');
+  assert.strictEqual(t1.extracted.name, undefined);
+
+  // When at name step, speaking name MUST NOT set location
+  const t2 = extractInformation('लोकेश शर्मा', 'name');
+  assert.strictEqual(t2.extracted.name, 'लोकेश शर्मा');
+  assert.strictEqual(t2.extracted.location, undefined);
+});
+
+test('Field validation rules', () => {
+  assert.strictEqual(validateField('name', 'लोकेश'), true);
+  assert.strictEqual(validateField('name', 'L'), false);
+  assert.strictEqual(validateField('location', 'मऊ'), true);
+  assert.strictEqual(validateField('location', ' '), false);
+  assert.strictEqual(validateField('age', '25'), true);
+  assert.strictEqual(validateField('age', '150'), false);
+  assert.strictEqual(validateField('gender', 'Male'), true);
+  assert.strictEqual(validateField('gender', 'Female'), true);
+  assert.strictEqual(validateField('gender', 'Alien'), false);
+});
